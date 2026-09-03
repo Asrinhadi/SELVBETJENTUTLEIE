@@ -1,5 +1,6 @@
 import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
+import { subDays } from "date-fns"
 import { MemoryRouter } from "react-router-dom"
 import { describe, expect, it } from "vitest"
 
@@ -8,6 +9,7 @@ import { RentalProvider } from "@/context/RentalContext"
 import { STORAGE_KEY } from "@/context/persistence"
 import { createInitialState } from "@/context/rentalReducer"
 import { DEMO_REQUESTS } from "@/data/demoData"
+import { toIsoDate } from "@/lib/dates"
 
 function renderAt(path: string, options: { persisted?: boolean } = {}) {
   return render(
@@ -82,6 +84,22 @@ describe("offentlig forespørsel", () => {
     expect(screen.getByText("Velg hvilket bygg du ønsker å leie.")).toBeInTheDocument()
     expect(screen.getByText("Velg formålet med leien.")).toBeInTheDocument()
     expect(screen.getByText("Du må bekrefte at dette bare er en forespørsel.")).toBeInTheDocument()
+  })
+
+  it("avviser dato tilbake i tid i skjemaet og setter min på datovelgeren", async () => {
+    const u = user()
+    renderAt("/")
+
+    const dateInput = screen.getByLabelText(/^Dato/)
+    expect(dateInput).toHaveAttribute("min", toIsoDate(new Date()))
+
+    await u.clear(dateInput)
+    await u.type(dateInput, toIsoDate(subDays(new Date(), 1)))
+    await u.click(screen.getByRole("button", { name: /Send forespørsel/ }))
+
+    expect(
+      await screen.findByText("Du kan ikke velge en dato tilbake i tid.", { selector: "[role=alert]" }),
+    ).toBeInTheDocument()
   })
 
   it("viser feil for ugyldig tidsrom samtidig med andre feil", async () => {

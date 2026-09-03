@@ -8,11 +8,13 @@ import {
   type RentalRequestInput,
 } from "@/domain/rental"
 import { getWeekday, isValidTimeRange } from "@/lib/availability"
+import { isBeforeDay, todayIsoDate } from "@/lib/dates"
 
 const TIME_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/
 
 export const DESCRIPTION_MIN = 10
 export const DESCRIPTION_MAX = 600
+export const PAST_DATE_MESSAGE = "Du kan ikke velge en dato tilbake i tid."
 
 export function isBuildingId(value: string): value is BuildingId {
   return (BUILDING_IDS as readonly string[]).includes(value)
@@ -26,14 +28,22 @@ export function isPurposeId(value: string): value is PurposeId {
  * Alle feltene er strenger/boolske verdier slik at ingen felt kan gi en
  * «abort»-feil i Zod. Dermed kjøres alltid kryssfelt-valideringen i
  * superRefine, og brukeren ser alle feil samtidig.
+ *
+ * `getToday` kalles ved hver validering slik at «i dag» alltid er dynamisk.
+ * Tester kan sende inn en fast dato.
  */
-export const bookingSchema = z
+export function createBookingSchema(getToday: () => string = todayIsoDate) {
+  return z
   .object({
     buildingId: z.string().min(1, "Velg hvilket bygg du ønsker å leie."),
     date: z
       .string()
       .min(1, "Velg en dato.")
-      .refine((value) => getWeekday(value) !== null, "Datoen er ikke gyldig."),
+      .refine((value) => value.length === 0 || getWeekday(value) !== null, "Datoen er ikke gyldig.")
+      .refine(
+        (value) => getWeekday(value) === null || !isBeforeDay(value, getToday()),
+        PAST_DATE_MESSAGE,
+      ),
     startTime: z
       .string()
       .min(1, "Velg starttid.")
@@ -96,6 +106,9 @@ export const bookingSchema = z
       }
     }
   })
+}
+
+export const bookingSchema = createBookingSchema()
 
 export type BookingFormValues = z.infer<typeof bookingSchema>
 

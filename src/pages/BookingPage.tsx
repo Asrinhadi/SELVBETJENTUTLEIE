@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { addDays, formatISO } from "date-fns"
+import { addDays } from "date-fns"
 import { toast } from "sonner"
 
 import { BookingForm } from "@/components/booking/BookingForm"
@@ -17,22 +17,19 @@ import {
   toRentalRequestInput,
   type BookingFormValues,
 } from "@/lib/bookingSchema"
+import { toIsoDate } from "@/lib/dates"
 import { capitalize, formatLongDate, formatTimeRange } from "@/lib/formatters"
 import { calculatePrice } from "@/lib/pricing"
 import { usePageTitle } from "@/lib/usePageTitle"
 
 const FORM_ID = "booking-form"
 
-function isoDate(date: Date): string {
-  return formatISO(date, { representation: "date" })
-}
-
 /** Fiktive, forhåndsutfylte kontaktopplysninger for rask testing. */
 function buildDefaultValues(today: Date): BookingFormValues {
   return {
     buildingId: "",
     purposeId: "",
-    date: isoDate(addDays(today, 14)),
+    date: toIsoDate(addDays(today, 14)),
     startTime: "18:00",
     endTime: "21:00",
     estimatedTicketRevenue: "",
@@ -50,8 +47,10 @@ export function BookingPage() {
   const navigate = useNavigate()
   const { submitRequest } = useRental()
 
+  // Dagens dato beregnes dynamisk ved innlasting og brukes både som
+  // `min` i datovelgeren og (via schemaet) i valideringen.
   const today = useMemo(() => new Date(), [])
-  const minDate = isoDate(today)
+  const minDate = toIsoDate(today)
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),

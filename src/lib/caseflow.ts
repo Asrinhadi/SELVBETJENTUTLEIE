@@ -1,5 +1,6 @@
-import { addDays, formatISO, parseISO, subDays, isValid, isBefore } from "date-fns"
+import { addDays, parseISO, subDays, isValid, isBefore } from "date-fns"
 
+import { toIsoDate } from "@/lib/dates"
 import type {
   CaseTask,
   HistoryEvent,
@@ -14,10 +15,6 @@ export const SYSTEM_ACTOR = "System"
 
 export function buildReference(year: number, sequence: number): string {
   return `UTL-${year}-${String(sequence).padStart(3, "0")}`
-}
-
-function toIsoDate(date: Date): string {
-  return formatISO(date, { representation: "date" })
 }
 
 function nextEventId(request: Pick<RentalRequest, "id" | "history">): string {
