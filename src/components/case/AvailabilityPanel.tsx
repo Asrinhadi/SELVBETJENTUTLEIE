@@ -45,7 +45,7 @@ export function AvailabilityPanel({
           </div>
           {hasBuffer && (
             <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">Rigg og rydding</dt>
+              <dt className="text-muted-foreground">Klargjøring og rydding</dt>
               <dd className="font-medium tabular-nums">
                 {formatMinutes(setupMinutes)} før, {formatMinutes(cleanupMinutes)} etter
               </dd>

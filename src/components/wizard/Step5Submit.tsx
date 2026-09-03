@@ -127,7 +127,7 @@ export function Step5Submit({
               value={`kl. ${needs.startTime}–${needs.endTime}`}
             />
             <Row
-              label="Rigg og rydding"
+              label="Klargjøring og rydding"
               value={`${formatMinutes(needs.setupMinutes)} før, ${formatMinutes(needs.cleanupMinutes)} etter`}
             />
             <Row

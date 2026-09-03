@@ -24,8 +24,8 @@ export type PriceLineKind =
 export const PRICE_LINE_GROUP_LABELS: Record<PriceLineKind, string> = {
   grunnleie: "Grunnleie",
   tid: "Leietid",
-  rigg: "Riggetid",
-  rydding: "Ryddetid",
+  rigg: "Klargjøring",
+  rydding: "Rydding",
   utstyr: "Utstyr",
   renhold: "Renhold",
   bemanning: "Bemanning",
@@ -61,7 +61,7 @@ export const EQUIPMENT_RATES: Partial<Record<FacilityId, number>> = {
 }
 
 export const RATES = {
-  /** Rigg og rydding faktureres til halv timesats. */
+  /** Klargjøring og rydding faktureres til halv timesats. */
   setupRateFactor: 0.5,
   staffHourlyRate: 640,
   amplifiedSurcharge: 750,
@@ -121,8 +121,8 @@ export function calculatePrice(
     lines.push({
       id: "rigg",
       kind: "rigg",
-      label: `Riggetid ${needs.setupMinutes} min`,
-      detail: `Lokalet er utilgjengelig for andre under rigging. Halv timesats, ${round(setupRate)} kr per time.`,
+      label: `Klargjøring ${needs.setupMinutes} min`,
+      detail: `Lokalet er utilgjengelig for andre mens dere klargjør. Halv timesats, ${round(setupRate)} kr per time.`,
       amount: round(setupRate * setupHours),
     })
   }
@@ -133,7 +133,7 @@ export function calculatePrice(
     lines.push({
       id: "rydding",
       kind: "rydding",
-      label: `Ryddetid ${needs.cleanupMinutes} min`,
+      label: `Rydding ${needs.cleanupMinutes} min`,
       detail: `Tid til opprydding etter arrangementet. Halv timesats, ${round(setupRate)} kr per time.`,
       amount: round(setupRate * cleanupHours),
     })
@@ -177,7 +177,7 @@ export function calculatePrice(
       id: "bemanning",
       kind: "bemanning",
       label: `Kirketjener ${staffHours} ${staffHours === 1 ? "time" : "timer"}`,
-      detail: `Arrangementer over ${venue.staffRequiredAbove} deltakere krever bemanning. ${RATES.staffHourlyRate} kr per time inkludert rigg og rydding.`,
+      detail: `Arrangementer over ${venue.staffRequiredAbove} deltakere krever bemanning. ${RATES.staffHourlyRate} kr per time inkludert klargjøring og rydding.`,
       amount: RATES.staffHourlyRate * staffHours,
     })
   }

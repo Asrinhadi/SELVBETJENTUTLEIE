@@ -60,7 +60,7 @@ export interface AvailabilitySlot {
   /** Arrangementets egen tid. */
   eventFrom: string
   eventTo: string
-  /** Tiden lokalet faktisk er opptatt, inkludert rigg og rydding. */
+  /** Tiden lokalet faktisk er opptatt, inkludert klargjøring og rydding. */
   blockedFrom: string
   blockedTo: string
 }
@@ -80,7 +80,7 @@ export interface BlockedWindow {
   to: string
 }
 
-/** Regner ut når lokalet faktisk er opptatt, inkludert rigge- og ryddetid. */
+/** Regner ut når lokalet faktisk er opptatt, inkludert klargjøring og rydding. */
 export function calculateBlockedWindow(needs: {
   startTime: string
   endTime: string
@@ -175,7 +175,7 @@ export function assessAvailability(
       ...base,
       state: "opptatt",
       label: AVAILABILITY_LABELS.opptatt,
-      reason: `Lokalet er opptatt i tidsrommet ${window.from}–${window.to}, inkludert rigg og rydding.`,
+      reason: `Lokalet er opptatt i tidsrommet ${window.from}–${window.to}, inkludert klargjøring og rydding.`,
       conflicts,
     }
   }
@@ -186,7 +186,7 @@ export function assessAvailability(
       state: "krever_vurdering",
       label: AVAILABILITY_LABELS.krever_vurdering,
       reason:
-        "Tidsrommet med rigg og rydding faller utenfor kl. 08.00–23.00 og må avklares med kirketjener.",
+        "Tidsrommet med klargjøring og rydding faller utenfor kl. 08.00–23.00 og må avklares med kirketjener.",
       conflicts: [],
     }
   }
@@ -230,7 +230,7 @@ export function assessAvailability(
     ...base,
     state: "ledig",
     label: AVAILABILITY_LABELS.ledig,
-    reason: `Ingen kjente konflikter. Lokalet blokkeres ${window.from}–${window.to} inkludert rigg og rydding.`,
+    reason: `Ingen kjente konflikter. Lokalet blokkeres ${window.from}–${window.to} inkludert klargjøring og rydding.`,
     conflicts: [],
   }
 }

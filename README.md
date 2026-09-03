@@ -22,9 +22,9 @@ Brukeren starter derfor med behovet sitt — ikke med å velge et tilfeldig loka
 
 **Offentlig del** — fem steg:
 
-1. **Beskriv arrangementet** — type, beskrivelse, antall, dato, tid, rigge- og ryddetid, behov
+1. **Beskriv arrangementet** — type, beskrivelse, antall, dato, tid, klargjøring og rydding, behov
 2. **Anbefalte lokaler** — regelbasert egnethetsmotor rangerer lokalene med forklaring
-3. **Dato og tidspunkt** — indikativ tilgjengelighet, med rigg og rydding regnet inn
+3. **Dato og tidspunkt** — indikativ tilgjengelighet, med klargjøring og rydding regnet inn
 4. **Prisoverslag** — hver linje forklarer hva som er lagt til og hvorfor
 5. **Send inn** — saksnummer, oppsummering og statustidslinje
 

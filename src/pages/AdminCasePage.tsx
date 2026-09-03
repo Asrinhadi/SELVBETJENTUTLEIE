@@ -129,7 +129,7 @@ export function AdminCasePage() {
                 <Field label="Tidspunkt">
                   kl. {request.needs.startTime}–{request.needs.endTime}
                 </Field>
-                <Field label="Rigg og rydding">
+                <Field label="Klargjøring og rydding">
                   {formatMinutes(request.needs.setupMinutes)} før,{" "}
                   {formatMinutes(request.needs.cleanupMinutes)} etter
                 </Field>

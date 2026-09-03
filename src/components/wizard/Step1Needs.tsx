@@ -201,7 +201,7 @@ export function Step1Needs({ needs, errors, onChange }: Step1Props) {
         icon={CalendarDays}
         step="02"
         title="Når passer det?"
-        description="Rigge- og ryddetid regnes med når vi sjekker om lokalet er ledig."
+        description="Tid til klargjøring og rydding regnes med når vi sjekker om lokalet er ledig."
       >
         <div className="grid gap-5 sm:grid-cols-3">
           <FormField id="date" label="Ønsket dato" error={errors.date}>
@@ -234,21 +234,25 @@ export function Step1Needs({ needs, errors, onChange }: Step1Props) {
         <div className="grid gap-5 sm:grid-cols-2">
           <FormField
             id="setupMinutes"
-            label="Riggetid før"
+            label="Klargjøring før arrangementet"
             required={false}
+            hint="Hvor mye tid trenger dere til pynting, oppsett av stoler, teknisk utstyr eller andre forberedelser?"
             error={errors.setupMinutes}
           >
             <Select
               value={String(needs.setupMinutes)}
               onValueChange={(v) => onChange({ ...needs, setupMinutes: Number(v) })}
             >
-              <SelectTrigger className="w-full" {...fieldA11y("setupMinutes", { required: false })}>
+              <SelectTrigger
+                className="w-full"
+                {...fieldA11y("setupMinutes", { required: false, hint: "hint" })}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {BUFFER_OPTIONS.map((m) => (
                   <SelectItem key={m} value={String(m)}>
-                    {m === 0 ? "Ingen riggetid" : `${m} minutter`}
+                    {m === 0 ? "Ingen klargjøring" : `${m} minutter`}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -256,8 +260,9 @@ export function Step1Needs({ needs, errors, onChange }: Step1Props) {
           </FormField>
           <FormField
             id="cleanupMinutes"
-            label="Ryddetid etter"
+            label="Rydding etter arrangementet"
             required={false}
+            hint="Hvor mye tid trenger dere til opprydding, nedpakking av utstyr og å sette lokalet tilbake slik dere fant det?"
             error={errors.cleanupMinutes}
           >
             <Select
@@ -266,14 +271,14 @@ export function Step1Needs({ needs, errors, onChange }: Step1Props) {
             >
               <SelectTrigger
                 className="w-full"
-                {...fieldA11y("cleanupMinutes", { required: false })}
+                {...fieldA11y("cleanupMinutes", { required: false, hint: "hint" })}
               >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {BUFFER_OPTIONS.map((m) => (
                   <SelectItem key={m} value={String(m)}>
-                    {m === 0 ? "Ingen ryddetid" : `${m} minutter`}
+                    {m === 0 ? "Ingen rydding" : `${m} minutter`}
                   </SelectItem>
                 ))}
               </SelectContent>
