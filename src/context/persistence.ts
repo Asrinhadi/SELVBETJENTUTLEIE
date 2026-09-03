@@ -1,120 +1,217 @@
 import { z } from "zod"
 
-import { BUILDING_IDS, PURPOSE_IDS } from "@/domain/rental"
-import type { RentalState } from "@/context/rentalReducer"
+import { CASE_STATUSES, type BookingRequest } from "@/domain/case"
+import { EVENT_TYPE_IDS } from "@/domain/event"
+import { FACILITY_IDS, VENUE_IDS } from "@/domain/venue"
+import { assessAvailability } from "@/domain/availabilityEngine"
+import { assessComplexity, findMissingInfo } from "@/domain/complexity"
+import { calculatePrice } from "@/domain/pricingEngine"
+import { evaluateVenue } from "@/domain/suitabilityEngine"
+import { getVenue } from "@/domain/venue"
+import { buildDemoCalendar } from "@/data/calendar"
+import type { KirkeFlowState } from "@/context/kirkeflowReducer"
 
-export const STORAGE_KEY = "kirkeutleie-demo-state"
+export const STORAGE_KEY = "kirkeflow-demo-v1"
 const STORAGE_VERSION = 1
 
 /**
- * Lagret tilstand er data brukeren selv kan redigere i nettleseren, og
- * behandles derfor som utrygg inndata: alt valideres på nytt ved innlasting,
- * med øvre grenser på lengder og antall. Feiler noe, forkastes hele
- * tilstanden og demo-dataene brukes i stedet.
+ * Bare INNDATA lagres. Egnethet, tilgjengelighet, pris og kompleksitet
+ * regnes ut på nytt ved innlasting, slik at lagret data aldri kommer ut av
+ * synk med motorene. Lagret innhold er brukerredigerbart og behandles som
+ * utrygg inndata: alt valideres, med lengde- og antallsgrenser.
  */
-const MAX_REQUESTS = 200
-const MAX_TASKS_PER_REQUEST = 20
-const MAX_HISTORY_PER_REQUEST = 200
-const MAX_MESSAGE_LENGTH = 2000
-const MAX_SHORT_TEXT = 200
+const MAX_CASES = 100
+const MAX_TEXT = 2000
+const shortText = z.string().max(200)
 
-const shortText = z.string().max(MAX_SHORT_TEXT)
-/** yyyy-MM-dd */
-const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
-/** HH:mm */
-const clockTime = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/)
-
-const taskSchema = z.object({
-  id: shortText,
-  type: z.enum(["contract", "invoice", "keys"]),
-  title: shortText,
-  responsibleRole: shortText,
-  dueDate: isoDate,
-  completed: z.boolean(),
+const needsSchema = z.object({
+  eventType: z.enum(EVENT_TYPE_IDS),
+  description: z.string().max(MAX_TEXT),
+  expectedAttendees: z.number().int().min(0).max(10000),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  startTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+  endTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+  setupMinutes: z.number().int().min(0).max(600),
+  cleanupMinutes: z.number().int().min(0).max(600),
+  requiredFacilities: z.array(z.enum(FACILITY_IDS)).max(FACILITY_IDS.length),
+  otherNeeds: z.string().max(MAX_TEXT),
+  amplifiedMusic: z.boolean().optional(),
+  ticketed: z.boolean().optional(),
+  servingFood: z.boolean().optional(),
+  servingAlcohol: z.boolean().optional(),
+  needsStage: z.boolean().optional(),
+  publicEvent: z.boolean().optional(),
 })
 
-const historyEventSchema = z.object({
+const eventSchema = z.object({
   id: shortText,
   type: z.enum([
-    "submitted",
-    "info_requested",
-    "approved",
-    "rejected",
-    "confirmation_created",
-    "tasks_created",
-    "task_completed",
-    "task_reopened",
+    "opprettet",
+    "automatisk_kontroll",
+    "tildelt",
+    "godkjent",
+    "avslatt",
+    "info_etterspurt",
+    "info_mottatt",
+    "pris_justert",
+    "alternativ_foreslatt",
+    "status_endret",
+    "melding",
   ]),
   timestamp: z.string().max(40),
   actor: shortText,
-  message: z.string().max(MAX_MESSAGE_LENGTH),
+  message: z.string().max(MAX_TEXT),
+  fromStatus: z.enum(CASE_STATUSES).optional(),
+  toStatus: z.enum(CASE_STATUSES).optional(),
 })
 
-const requestSchema = z.object({
+const messageSchema = z.object({
   id: shortText,
-  reference: shortText,
-  status: z.enum(["new", "needs_info", "approved", "rejected"]),
-  buildingId: z.enum(BUILDING_IDS),
-  date: isoDate,
-  startTime: clockTime,
-  endTime: clockTime,
-  purposeId: z.enum(PURPOSE_IDS),
-  estimatedTicketRevenue: z.number().finite().nonnegative().optional(),
-  description: z.string().max(MAX_MESSAGE_LENGTH),
+  from: z.enum(["soker", "saksbehandler"]),
+  author: shortText,
+  timestamp: z.string().max(40),
+  body: z.string().max(MAX_TEXT),
+})
+
+const caseSchema = z.object({
+  id: shortText,
+  caseNumber: shortText,
+  status: z.enum(CASE_STATUSES),
+  needs: needsSchema,
+  venueId: z.enum(VENUE_IDS),
+  recommendedVenueIds: z.array(z.enum(VENUE_IDS)).max(VENUE_IDS.length),
   applicant: z.object({
     name: shortText,
     organization: shortText.optional(),
     email: shortText,
     phone: shortText,
   }),
+  assignedTo: shortText.nullable(),
   createdAt: z.string().max(40),
-  confirmationCreated: z.boolean(),
-  tasks: z.array(taskSchema).max(MAX_TASKS_PER_REQUEST),
-  history: z.array(historyEventSchema).max(MAX_HISTORY_PER_REQUEST),
+  updatedAt: z.string().max(40),
+  events: z.array(eventSchema).max(200),
+  messages: z.array(messageSchema).max(200),
+  priceAdjustment: z
+    .object({ amount: z.number().finite(), reason: z.string().max(MAX_TEXT) })
+    .optional(),
 })
 
 const persistedSchema = z.object({
   version: z.literal(STORAGE_VERSION),
-  state: z.object({
-    requests: z.array(requestSchema).max(MAX_REQUESTS),
-    nextSequence: z.number().int().positive().max(9999),
-  }),
+  cases: z.array(caseSchema).max(MAX_CASES),
+  nextSequence: z.number().int().positive().max(99999),
 })
+
+type PersistedCase = z.infer<typeof caseSchema>
 
 function getStorage(): Storage | null {
   try {
     if (typeof window === "undefined") return null
-    return window.sessionStorage
+    return window.localStorage
   } catch {
     return null
   }
 }
 
-export function loadPersistedState(): RentalState | null {
+/** Plukker ut justeringen fra prisoverslaget, slik at den overlever lagring. */
+function extractAdjustment(request: BookingRequest) {
+  const line = request.price.lines.find((l) => l.id === "justering")
+  if (!line) return undefined
+  return { amount: line.amount, reason: line.detail }
+}
+
+function toPersisted(request: BookingRequest): PersistedCase {
+  const adjustment = extractAdjustment(request)
+  return {
+    id: request.id,
+    caseNumber: request.caseNumber,
+    status: request.status,
+    needs: { ...request.needs, requiredFacilities: [...request.needs.requiredFacilities] },
+    venueId: request.venueId,
+    recommendedVenueIds: [...request.recommendedVenueIds],
+    applicant: request.applicant,
+    assignedTo: request.assignedTo,
+    createdAt: request.createdAt,
+    updatedAt: request.updatedAt,
+    events: request.events.map((e) => ({ ...e })),
+    messages: request.messages.map((m) => ({ ...m })),
+    ...(adjustment ? { priceAdjustment: adjustment } : {}),
+  }
+}
+
+/** Bygger opp igjen en full sak ved å kjøre motorene på nytt. */
+function rehydrate(
+  stored: PersistedCase,
+  calendar: ReturnType<typeof buildDemoCalendar>,
+): BookingRequest {
+  const needs = { ...stored.needs }
+  const suitability = evaluateVenue(needs, getVenue(stored.venueId))
+  const availability = assessAvailability(needs, stored.venueId, calendar)
+  const price = calculatePrice(needs, stored.venueId, {
+    ...(stored.priceAdjustment ? { adjustment: stored.priceAdjustment } : {}),
+  })
+  const missingInfo = findMissingInfo(needs)
+  const complexity = assessComplexity({
+    needs,
+    venueId: stored.venueId,
+    suitability,
+    availability,
+    missingInfo,
+  })
+
+  return {
+    id: stored.id,
+    caseNumber: stored.caseNumber,
+    status: stored.status,
+    needs,
+    venueId: stored.venueId,
+    recommendedVenueIds: stored.recommendedVenueIds,
+    applicant: stored.applicant,
+    suitability,
+    availability,
+    price,
+    complexity,
+    missingInfo,
+    assignedTo: stored.assignedTo,
+    createdAt: stored.createdAt,
+    updatedAt: stored.updatedAt,
+    events: stored.events,
+    messages: stored.messages,
+  }
+}
+
+export function loadPersistedState(today: Date = new Date()): KirkeFlowState | null {
   const storage = getStorage()
   if (!storage) return null
 
   try {
     const raw = storage.getItem(STORAGE_KEY)
     if (!raw) return null
-    // Zod fjerner ukjente nøkler (inkludert «__proto__»), så tuklet
-    // lagringsdata kan ikke smugle inn ekstra felter.
     const parsed = persistedSchema.safeParse(JSON.parse(raw))
     if (!parsed.success) return null
-    return parsed.data.state
+
+    const calendar = buildDemoCalendar(today)
+    return {
+      calendar,
+      cases: parsed.data.cases.map((c) => rehydrate(c, calendar)),
+      nextSequence: parsed.data.nextSequence,
+    }
   } catch {
     return null
   }
 }
 
-export function persistState(state: RentalState): void {
+export function persistState(state: KirkeFlowState): void {
   const storage = getStorage()
   if (!storage) return
-
   try {
     storage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ version: STORAGE_VERSION, state }),
+      JSON.stringify({
+        version: STORAGE_VERSION,
+        cases: state.cases.map(toPersisted),
+        nextSequence: state.nextSequence,
+      }),
     )
   } catch {
     // Lagring er en bekvemmelighet i demoen – feil skal ikke stoppe appen.

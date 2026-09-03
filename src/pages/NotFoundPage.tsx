@@ -22,9 +22,9 @@ export function NotFoundPage() {
           </Link>
         </Button>
         <Button variant="outline" asChild>
-          <Link to="/admin">
+          <Link to="/saksbehandling">
             <Inbox aria-hidden="true" />
-            Intern innboks
+            Saksbehandling
           </Link>
         </Button>
       </div>

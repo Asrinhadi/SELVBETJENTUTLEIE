@@ -1,0 +1,32 @@
+import { createContext } from "react"
+
+import type { BookingRequest } from "@/domain/case"
+import type { CreateCaseInput } from "@/domain/caseflow"
+import type { KirkeFlowState } from "@/context/kirkeflowReducer"
+
+export interface InboxStats {
+  total: number
+  awaitingReview: number
+  awaitingApplicant: number
+  withConflict: number
+  unassigned: number
+}
+
+export interface KirkeFlowContextValue {
+  state: KirkeFlowState
+  stats: InboxStats
+  getCase: (caseId: string) => BookingRequest | undefined
+  getCaseByNumber: (caseNumber: string) => BookingRequest | undefined
+  submitCase: (input: Omit<CreateCaseInput, "calendar">) => BookingRequest
+  assign: (caseId: string, staffId: string) => void
+  approve: (caseId: string) => void
+  confirmPayment: (caseId: string) => void
+  reject: (caseId: string, reason: string) => void
+  requestInfo: (caseId: string, message: string) => void
+  adjustPrice: (caseId: string, amount: number, reason: string) => void
+  proposeAlternative: (caseId: string, proposal: string) => void
+  replyAsApplicant: (caseId: string, body: string) => void
+  resetDemo: () => void
+}
+
+export const KirkeFlowContext = createContext<KirkeFlowContextValue | null>(null)

@@ -1,32 +1,15 @@
 import { format, isValid, parseISO } from "date-fns"
 import { nb } from "date-fns/locale"
 
-import type { PriceEstimate } from "@/domain/rental"
-
 /** Hardt mellomrom (U+00A0) slik at «3 910 kr» ikke brekker over linjer. */
-export const NBSP = " "
+export const NBSP = " "
 
 /** «3 910 kr» med hardt mellomrom som tusenskille og foran «kr». */
 export function formatCurrency(amount: number): string {
   const rounded = Math.round(amount)
   const sign = rounded < 0 ? "−" : ""
-  const digits = String(Math.abs(rounded)).replace(
-    /\B(?=(\d{3})+(?!\d))/g,
-    NBSP,
-  )
+  const digits = String(Math.abs(rounded)).replace(/\B(?=(\d{3})+(?!\d))/g, NBSP)
   return `${sign}${digits}${NBSP}kr`
-}
-
-export function formatPriceEstimate(estimate: PriceEstimate): string {
-  switch (estimate.kind) {
-    case "fixed":
-    case "percentage":
-      return formatCurrency(estimate.amount)
-    case "from":
-      return `Fra ${formatCurrency(estimate.amount)}`
-    case "to_be_clarified":
-      return "Pris avklares"
-  }
 }
 
 /** «lørdag 19. september 2026» */
@@ -53,6 +36,16 @@ export function formatDateTime(isoTimestamp: string): string {
 export function formatTimeRange(startTime: string, endTime: string): string {
   if (!startTime || !endTime) return "–"
   return `kl. ${startTime}–${endTime}`
+}
+
+/** «1 t 30 min» */
+export function formatMinutes(minutes: number): string {
+  if (minutes <= 0) return "0 min"
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  if (h === 0) return `${m} min`
+  if (m === 0) return `${h} t`
+  return `${h} t ${m} min`
 }
 
 export function capitalize(text: string): string {

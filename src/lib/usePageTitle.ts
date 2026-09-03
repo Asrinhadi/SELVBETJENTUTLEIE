@@ -1,10 +1,10 @@
 import { useEffect } from "react"
 
-const BASE_TITLE = "Kirkeutleie – digital forespørsel og intern saksflyt"
+const BASE_TITLE = "KirkeFlow – finn lokale, få pris, følg saken"
 
 export function usePageTitle(title?: string): void {
   useEffect(() => {
-    document.title = title ? `${title} · Kirkeutleie` : BASE_TITLE
+    document.title = title ? `${title} · KirkeFlow` : BASE_TITLE
     return () => {
       document.title = BASE_TITLE
     }
