@@ -14,15 +14,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useRental } from "@/context/useRental"
-import { cn } from "@/lib/utils"
 
-const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-  cn(
-    "inline-flex h-11 items-center gap-2 rounded-full border px-4 text-base font-medium backdrop-blur-md transition-colors outline-none focus-visible:ring-4 focus-visible:ring-white/50",
-    isActive
-      ? "border-white bg-white text-primary shadow-md"
-      : "border-white/35 bg-white/15 text-white hover:border-white/60 hover:bg-white/25",
-  )
+const NAV_LINK_CLASS =
+  "glass-navigation inline-flex h-11 items-center gap-2 rounded-full px-4 text-base font-medium outline-none"
 
 export function SiteHeader() {
   const { stats, resetDemo } = useRental()
@@ -47,17 +41,29 @@ export function SiteHeader() {
         className="absolute inset-0 -z-20 size-full object-cover object-[center_45%]"
         fetchPriority="high"
       />
+      {/* Sammensatt mørk grønn overlay: diagonal dybde, og mørkere topp/bunn
+          slik at hvit tekst og glassknapper får kontrast også over lyse
+          partier i fotoet. */}
       <div
-        className="absolute inset-0 -z-10 bg-gradient-to-r from-primary/90 via-primary/70 to-primary/35"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(115deg,rgba(10,42,40,0.95)_0%,rgba(25,59,60,0.86)_38%,rgba(25,59,60,0.66)_70%,rgba(25,59,60,0.52)_100%)]"
         aria-hidden="true"
       />
       <div
-        className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-primary/70 to-transparent"
+        className="absolute inset-x-0 top-0 -z-10 h-28 bg-gradient-to-b from-[rgba(10,42,40,0.55)] to-transparent"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-t from-[rgba(10,42,40,0.78)] to-transparent"
+        aria-hidden="true"
+      />
+      {/* Svært svak lysglød bak logo-området */}
+      <div
+        className="pointer-events-none absolute -top-16 -left-10 -z-10 size-[26rem] rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.16),transparent_72%)]"
         aria-hidden="true"
       />
 
       <div
-        className="flex items-center justify-center gap-2 bg-primary/70 px-4 py-1.5 text-center text-sm font-medium backdrop-blur-sm"
+        className="flex items-center justify-center gap-2 border-b border-white/15 bg-primary/60 px-4 py-1.5 text-center text-sm font-medium"
         role="note"
         aria-label="Prototypeinformasjon"
       >
@@ -69,37 +75,32 @@ export function SiteHeader() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <NavLink
             to="/"
-            className="flex items-center gap-3 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-white/50"
+            className="flex items-center gap-3 rounded-2xl outline-none focus-visible:ring-4 focus-visible:ring-white/50"
             aria-label="Kirkeutleie – til forsiden"
           >
-            <span className="grid size-12 place-items-center rounded-xl border border-white/40 bg-white/15 backdrop-blur-md sm:size-14">
+            <span className="glass-navigation grid size-12 place-items-center rounded-2xl sm:size-14">
               <Church className="size-6 sm:size-7" aria-hidden="true" />
             </span>
             <span className="flex flex-col leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">
-              <span className="text-2xl font-semibold sm:text-3xl">Kirkeutleie</span>
+              <span className="text-2xl font-semibold tracking-[-0.02em] sm:text-3xl">Kirkeutleie</span>
               <span className="text-base text-white/85 sm:text-lg">
                 Digital forespørsel og intern saksflyt
               </span>
             </span>
           </NavLink>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setResetOpen(true)}
-            className="border-white/40 bg-white/15 text-white backdrop-blur-md hover:border-white/60 hover:bg-white/25 hover:text-white focus-visible:ring-white/50"
-          >
+          <Button variant="glass" size="sm" onClick={() => setResetOpen(true)}>
             <RotateCcw aria-hidden="true" />
             Nullstill demo
           </Button>
         </div>
 
         <nav aria-label="Hovednavigasjon" className="flex flex-wrap gap-2">
-          <NavLink to="/" end className={navLinkClass}>
+          <NavLink to="/" end className={NAV_LINK_CLASS}>
             <PenLine className="size-4" aria-hidden="true" />
             Ny forespørsel
           </NavLink>
-          <NavLink to="/admin" className={navLinkClass}>
+          <NavLink to="/admin" className={NAV_LINK_CLASS}>
             <Inbox className="size-4" aria-hidden="true" />
             Intern innboks
             {stats.newCount > 0 && (

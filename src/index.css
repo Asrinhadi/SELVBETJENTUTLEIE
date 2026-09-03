@@ -46,6 +46,9 @@
   --color-info: var(--info);
   --color-info-soft: var(--info-soft);
   --color-info-border: var(--info-border);
+  --color-primary-light: var(--primary-light);
+  --color-cream-soft: var(--cream-soft);
+  --color-cream-border: var(--cream-border);
 
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -57,8 +60,8 @@
 }
 
 :root {
-  /* Designretning: rolig, moderne offentlig tjeneste */
-  --background: #f4f7f5;
+  /* Designretning: moderne skandinavisk glassmorphism – rolig og profesjonell */
+  --background: #eef3f0;
   --foreground: #16302f;
   --card: #ffffff;
   --card-foreground: #16302f;
@@ -67,17 +70,22 @@
 
   --primary: #193b3c;
   --primary-foreground: #ffffff;
-  --primary-soft: #e4eeec;
+  --primary-soft: #e2ece9;
+  --primary-light: #3f7c6c;
+
+  /* Varm, nøytral tone til prisinformasjon */
+  --cream-soft: #f7efe2;
+  --cream-border: #e4d7c1;
 
   --action: #9e2f49;
   --action-hover: #86243c;
   --action-foreground: #ffffff;
 
-  --secondary: #e6eeeb;
+  --secondary: #e4ede9;
   --secondary-foreground: #193b3c;
-  --muted: #edf2f0;
-  --muted-foreground: #4f6462;
-  --accent: #e6eeeb;
+  --muted: #e9efec;
+  --muted-foreground: #4b605e;
+  --accent: #e4ede9;
   --accent-foreground: #193b3c;
 
   --destructive: #a13a3a;
@@ -96,10 +104,39 @@
   --info-soft: #e4edf7;
   --info-border: #bdd2ea;
 
-  --border: #d3ddd9;
-  --input: #c2cfca;
+  --border: #cfdad5;
+  /* Skjemakanter: ≥ 3:1 mot hvit (WCAG AA for UI-komponenter) */
+  --input: #7a8f8a;
   --ring: #193b3c;
   --radius: 0.75rem;
+
+  /* Atmosfærisk bakgrunn: mørk grønn, salvie, varm krem og svak burgunder */
+  --atmo-green: #193b3c;
+  --atmo-sage: #8fb0a0;
+  --atmo-cream: #f4e9d6;
+  --atmo-burgundy: #9e2f49;
+
+  /* Glass-tokens – én kilde for alle glassflater */
+  --glass-card-bg: rgba(255, 255, 255, 0.58);
+  --glass-card-border: rgba(255, 255, 255, 0.68);
+  --glass-card-radius: 1.75rem;
+  --glass-card-blur: blur(24px) saturate(150%);
+  --glass-card-shadow:
+    0 24px 70px -32px rgba(12, 49, 46, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+
+  --glass-panel-bg: rgba(255, 255, 255, 0.46);
+  --glass-panel-border: rgba(255, 255, 255, 0.72);
+  --glass-panel-radius: 1.125rem;
+
+  --glass-nav-bg: rgba(255, 255, 255, 0.12);
+  --glass-nav-bg-hover: rgba(255, 255, 255, 0.22);
+  --glass-nav-border: rgba(255, 255, 255, 0.32);
+  --glass-nav-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  --glass-nav-blur: blur(16px);
+
+  /* Felles overgangstid for glassflater og skjemafelt (160–220 ms) */
+  --glass-transition: 180ms ease;
 }
 
 @layer base {
@@ -115,29 +152,52 @@
 
   body {
     @apply text-foreground;
+    position: relative;
     font-size: 1rem;
     line-height: 1.5;
     min-width: 320px;
+    background-color: var(--background);
     -webkit-font-smoothing: antialiased;
-    /* Myk fargegradient i bakgrunnen slik at glassflatene får noe å bryte lyset mot. */
+  }
+
+  /*
+   * Bakgrunnen ligger i et fast pseudo-lag i stedet for background-attachment: fixed,
+   * som ikke fungerer på iOS. Flere svært myke radial gradients gir nok
+   * fargevariasjon til at gjennomsiktige flater faktisk oppleves som glass.
+   */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
     background-color: var(--background);
     background-image:
       radial-gradient(
-        70rem 45rem at 8% -5%,
-        color-mix(in oklch, var(--primary) 16%, transparent),
-        transparent 65%
+        80rem 52rem at 4% -8%,
+        color-mix(in oklch, var(--atmo-green) 22%, transparent),
+        transparent 62%
       ),
       radial-gradient(
-        55rem 40rem at 100% 15%,
-        color-mix(in oklch, var(--action) 12%, transparent),
-        transparent 65%
+        60rem 44rem at 96% 6%,
+        color-mix(in oklch, var(--atmo-burgundy) 13%, transparent),
+        transparent 62%
       ),
       radial-gradient(
-        60rem 40rem at 50% 110%,
-        color-mix(in oklch, var(--primary) 10%, transparent),
-        transparent 65%
+        64rem 46rem at 28% 58%,
+        color-mix(in oklch, var(--atmo-cream) 70%, transparent),
+        transparent 64%
+      ),
+      radial-gradient(
+        70rem 48rem at 78% 78%,
+        color-mix(in oklch, var(--atmo-sage) 42%, transparent),
+        transparent 62%
+      ),
+      radial-gradient(
+        56rem 40rem at 50% 112%,
+        color-mix(in oklch, var(--atmo-green) 16%, transparent),
+        transparent 62%
       );
-    background-attachment: fixed;
   }
 
   button:not(:disabled),
@@ -149,40 +209,25 @@
   h2,
   h3,
   h4 {
-    @apply font-heading tracking-tight text-foreground;
+    @apply font-heading text-foreground;
     text-wrap: balance;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+
+  h1 {
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  h2 {
+    letter-spacing: -0.02em;
+    line-height: 1.15;
   }
 
   :focus-visible {
     outline: 3px solid color-mix(in oklch, var(--ring) 60%, transparent);
     outline-offset: 2px;
-  }
-
-  /* Glassaktige flater for kort og paneler */
-  .glass {
-    background-color: color-mix(in oklch, white 62%, transparent);
-    border: 1px solid color-mix(in oklch, white 70%, transparent);
-    box-shadow:
-      0 1px 2px rgba(22, 48, 47, 0.05),
-      0 12px 32px -12px rgba(22, 48, 47, 0.18),
-      inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(18px) saturate(150%);
-    -webkit-backdrop-filter: blur(18px) saturate(150%);
-  }
-
-  .glass-strong {
-    background-color: color-mix(in oklch, white 86%, transparent);
-    border: 1px solid color-mix(in oklch, white 80%, transparent);
-    box-shadow:
-      0 24px 60px -20px rgba(22, 48, 47, 0.35),
-      inset 0 1px 0 rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(24px) saturate(150%);
-    -webkit-backdrop-filter: blur(24px) saturate(150%);
-  }
-
-  .glass-inset {
-    background-color: color-mix(in oklch, white 45%, transparent);
-    border: 1px solid color-mix(in oklch, white 65%, transparent);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -191,6 +236,170 @@
     *::after {
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/*
+ * Glass-designsystem. Ligger i components-laget slik at vanlige
+ * Tailwind-utilities (bg-*, rounded-*, border-*) kan overstyre ved behov.
+ */
+@layer components {
+  /* 1. Hovedseksjoner – sterk blur, brukes på toppnivå (ikke nestet). */
+  .glass-card {
+    position: relative;
+    background-color: var(--glass-card-bg);
+    border: 1px solid var(--glass-card-border);
+    border-radius: var(--glass-card-radius);
+    box-shadow: var(--glass-card-shadow);
+    -webkit-backdrop-filter: var(--glass-card-blur);
+    backdrop-filter: var(--glass-card-blur);
+    /* Kun farge/skygge – aldri transform, så kortene ikke flytter seg ved hover */
+    transition:
+      background-color var(--glass-transition),
+      border-color var(--glass-transition),
+      box-shadow var(--glass-transition);
+  }
+
+  /* Svært svak lysrefleks langs toppen */
+  .glass-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 8% auto 8%;
+    height: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.95) 50%,
+      transparent
+    );
+    pointer-events: none;
+  }
+
+  /* 2. Mindre informasjonsflater inne i kort – ingen blur (ytelse). */
+  .glass-panel {
+    background-color: var(--glass-panel-bg);
+    border: 1px solid var(--glass-panel-border);
+    border-radius: var(--glass-panel-radius);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    transition:
+      background-color var(--glass-transition),
+      border-color var(--glass-transition);
+  }
+
+  /*
+   * 3. Lesbarhetsflater: lister, tekstområder og oppgavekort.
+   * Nesten ugjennomsiktig – brukes der teksten er viktigere enn effekten,
+   * og for å unngå blur-lag inni blur-lag.
+   */
+  .surface-solid {
+    background-color: rgba(255, 255, 255, 0.92);
+    border: 1px solid color-mix(in oklch, var(--primary) 12%, transparent);
+    border-radius: var(--glass-panel-radius);
+    transition:
+      background-color var(--glass-transition),
+      border-color var(--glass-transition),
+      box-shadow var(--glass-transition);
+  }
+
+  /* 4. Navigasjon og knapper over headerbildet – lys tekst på mørkt foto. */
+  .glass-navigation {
+    color: #ffffff;
+    background-color: var(--glass-nav-bg);
+    border: 1px solid var(--glass-nav-border);
+    box-shadow: var(--glass-nav-highlight);
+    -webkit-backdrop-filter: var(--glass-nav-blur);
+    backdrop-filter: var(--glass-nav-blur);
+    transition:
+      background-color var(--glass-transition),
+      border-color var(--glass-transition),
+      box-shadow var(--glass-transition),
+      color var(--glass-transition);
+  }
+
+  .glass-navigation:hover {
+    background-color: var(--glass-nav-bg-hover);
+    border-color: rgba(255, 255, 255, 0.55);
+  }
+
+  /* Aktiv side: hvit, solid flate med mørk tekst – tydelig skille fra inaktiv */
+  .glass-navigation[aria-current="page"] {
+    color: var(--primary);
+    background-color: #ffffff;
+    border-color: #ffffff;
+    box-shadow:
+      var(--glass-nav-highlight),
+      0 12px 30px -14px rgba(12, 49, 46, 0.55);
+  }
+
+  .glass-navigation:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.85);
+    outline-offset: 3px;
+  }
+
+  /* Diskret innlasting – kun opacity/transform, respekterer prefers-reduced-motion */
+  @keyframes surface-rise {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 10px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes surface-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-rise {
+    animation: surface-rise 260ms ease-out both;
+  }
+
+  /* Kun opacity: trygt på beholdere som inneholder position: sticky */
+  .animate-fade {
+    animation: surface-fade 220ms ease-out both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-rise,
+    .animate-fade {
+      animation: none;
+    }
+  }
+
+  /* Solid fallback uten backdrop-filter, og for brukere som ønsker mindre transparens */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass-card {
+      background-color: rgba(255, 255, 255, 0.94);
+    }
+    .glass-panel {
+      background-color: rgba(255, 255, 255, 0.85);
+    }
+    .glass-navigation {
+      background-color: rgba(25, 59, 60, 0.7);
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .glass-card,
+    .glass-panel,
+    .surface-solid {
+      background-color: rgba(255, 255, 255, 0.96);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+    .glass-navigation {
+      background-color: rgba(25, 59, 60, 0.85);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Info, Send } from "lucide-react"
+import { Info, Send, Sparkles } from "lucide-react"
 
 import { AvailabilityBadge } from "@/components/booking/AvailabilityBadge"
 import { Button } from "@/components/ui/button"
@@ -41,13 +41,20 @@ export function SummaryPanel({ data, formId, isSubmitting }: SummaryPanelProps) 
   const progress = Math.round((data.completedFields / data.totalFields) * 100)
 
   return (
-    <Card aria-labelledby="oppsummering-tittel" className="gap-4">
-      <CardHeader>
-        <CardTitle id="oppsummering-tittel">Oppsummering</CardTitle>
-        <div className="flex flex-col gap-1.5">
-          <div className="flex justify-between text-sm text-muted-foreground">
-            <span>Utfylt</span>
-            <span>
+    <Card aria-labelledby="oppsummering-tittel" className="gap-5 bg-white/68">
+      <CardHeader className="gap-4">
+        <div className="flex items-center gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-[0_8px_20px_-8px_rgba(12,49,46,0.6)]">
+            <Sparkles className="size-5" aria-hidden="true" />
+          </span>
+          <CardTitle id="oppsummering-tittel" className="text-[1.35rem] sm:text-2xl">
+            Oppsummering
+          </CardTitle>
+        </div>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-baseline justify-between text-sm">
+            <span className="font-medium text-foreground">Utfylt</span>
+            <span className="text-muted-foreground">
               {data.completedFields} av {data.totalFields} felt
             </span>
           </div>
@@ -63,11 +70,9 @@ export function SummaryPanel({ data, formId, isSubmitting }: SummaryPanelProps) 
         <section
           aria-live="polite"
           aria-atomic="true"
-          className="glass-inset flex flex-col gap-2 rounded-xl p-4"
+          className="glass-panel flex flex-col gap-2 border-success-border/70 bg-success-soft/55 p-4"
         >
-          <h3 className="text-sm font-semibold text-muted-foreground">
-            Indikativ tilgjengelighet
-          </h3>
+          <h3 className="text-sm font-semibold text-success">Indikativ tilgjengelighet</h3>
           {data.availability ? (
             <>
               <AvailabilityBadge status={data.availability.status} />
@@ -86,12 +91,12 @@ export function SummaryPanel({ data, formId, isSubmitting }: SummaryPanelProps) 
         <section
           aria-live="polite"
           aria-atomic="true"
-          className="flex flex-col gap-1 rounded-xl border border-primary/15 bg-primary-soft/70 p-4"
+          className="glass-panel flex flex-col gap-1 border-cream-border/80 bg-cream-soft/70 p-4"
         >
           <h3 className="text-sm font-semibold text-muted-foreground">Foreløpig pris</h3>
           {data.price ? (
             <>
-              <p className="text-3xl font-semibold text-primary">
+              <p className="text-3xl font-semibold tracking-[-0.02em] text-primary">
                 {formatPriceEstimate(data.price)}
               </p>
               <p className="text-sm text-muted-foreground">
@@ -110,7 +115,7 @@ export function SummaryPanel({ data, formId, isSubmitting }: SummaryPanelProps) 
           </p>
         </section>
 
-        <Separator />
+        <Separator className="bg-primary/10" />
 
         <dl className="flex flex-col gap-2.5">
           <SummaryRow label="Bygg" value={data.buildingName} />

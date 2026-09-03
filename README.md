@@ -1,73 +1,39 @@
-# Kirkeutleie – digital forespørsel og intern saksflyt
+<div align="center">
 
-Interaktiv frontend-prototype (fiktive data) som viser hvordan en forespørsel om leie av
-kirke eller menighetslokale kan gå fra et offentlig skjema, via foreløpig pris og indikativ
-tilgjengelighet, til en intern saksinnboks med behandling og automatiske oppgaver.
+# Kirkeutleie
 
-> Uavhengig prototype. Ikke tilknyttet et produksjonssystem. Ingen data sendes til
-> Sarpsborg kirkelige fellesråd – alt lagres kun midlertidig i nettleseren.
+### Digital forespørsel og intern saksflyt
 
-## Kom i gang
+En interaktiv frontend-prototype som demonstrerer hele prosessen fra forespørsel og prisestimat til intern behandling og oppfølging.
+
+`React` · `TypeScript` · `Vite` · `Tailwind CSS` · `shadcn/ui` · `Zod` · `Vitest`
+
+</div>
+
+---
+
+## Løsningen
+
+Brukeren velger lokale, dato, tidspunkt og formål. Systemet viser indikativ tilgjengelighet og beregner en foreløpig pris før forespørselen sendes inn.
+
+På administrasjonssiden kan forespørselen behandles, godkjennes eller avslås. Løsningen oppretter sakshistorikk og tilhørende oppgaver automatisk.
+
+## Lokal utvikling
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173
+npm run dev
 ```
 
-Andre kommandoer:
+## Verifisering
 
 ```bash
-npm test           # Vitest (pris, tilgjengelighet, skjema, saksflyt, UI)
-npm run lint       # oxlint
-npm run typecheck  # tsc -b
-npm run build      # produksjonsbygg til dist/
-npm run preview    # forhåndsvis produksjonsbygget
+npm test
+npm run lint
+npm run typecheck
+npm run build
 ```
 
-## Ruter
+## Avgrensning
 
-| Rute                      | Innhold                                   |
-| ------------------------- | ----------------------------------------- |
-| `/`                       | Offentlig forespørselsskjema              |
-| `/bekreftelse/:requestId` | Bekreftelse med referansenummer           |
-| `/admin`                  | Intern saksinnboks                        |
-| `/admin/saker/:requestId` | Valgt sak med behandling og oppgaver      |
-
-`vercel.json` sender alle ruter til `index.html`, slik at React Router fungerer ved publisering.
-
-## Arkitektur
-
-```
-src/
-  domain/rental.ts          Typer og konstanter (bygg, formål, status, sak, oppgave)
-  lib/pricing.ts            Prisregler som rene funksjoner
-  lib/availability.ts       Indikativ tilgjengelighet (demo-regler)
-  lib/caseflow.ts           Opprettelse, godkjenning, avslag, oppgaver, historikk
-  lib/bookingSchema.ts      Zod-skjema for det offentlige skjemaet
-  lib/formatters.ts         Formatering av beløp, dato og tid (nb)
-  data/demoData.ts          Fiktive startsaker
-  context/                  useReducer + Context + sessionStorage-persistens
-  components/booking        Skjema og oppsummering
-  components/caseflow       Innboks, saksdetaljer, behandling, historikk
-  components/tasks          Oppgaveliste
-  components/layout         Header, footer, sideoppsett
-  components/ui             Tilpassede shadcn/ui-komponenter (Radix)
-  assets/                   Headerbilde
-  pages/                    Sidene som rutes
-  tests/                    Vitest-tester
-```
-
-Tilstanden lever i `RentalProvider` (`useReducer` med typesikre actions) og speiles til
-`sessionStorage`, slik at den overlever navigasjon og oppdatering av siden. «Nullstill demo»
-gjenoppretter de fiktive startsakene.
-
-## Hva er ekte og hva er simulert
-
-**Ekte frontend-funksjonalitet:** skjemavalidering (React Hook Form + Zod), prisberegning,
-tilgjengelighetsregler, opprettelse av saker med referansenummer, saksbehandling med
-dialoger, automatisk opprettelse av oppgaver ved godkjenning, sakshistorikk, statistikk,
-filtrering/søk og lagring i nettleseren.
-
-**Simulert:** kalenderen (faste demo-regler), saksbehandlerrollen (ingen innlogging),
-e-post/bekreftelse til søker (kun markert i historikken), kontrakt, faktura og nøkler
-(oppgaver, ikke integrasjoner). Ingen data forlater nettleseren.
+Dette er en uavhengig prototype med fiktive data. Løsningen har ingen backend, innlogging eller eksterne integrasjoner. All informasjon lagres midlertidig i nettleserens `sessionStorage`.

@@ -40,13 +40,13 @@ export function CaseHistory({ history }: { history: readonly HistoryEvent[] }) {
             <li key={event.id} className="relative flex gap-3 pb-5">
               {!isLast && (
                 <span
-                  className="absolute top-9 bottom-0 left-4 w-px bg-border"
+                  className="absolute top-9 bottom-0 left-4 w-px bg-primary/15"
                   aria-hidden="true"
                 />
               )}
               <span
                 className={cn(
-                  "relative z-10 grid size-8 shrink-0 place-items-center rounded-full",
+                  "relative z-10 grid size-8 shrink-0 place-items-center rounded-full ring-4 ring-white/70",
                   className,
                 )}
               >

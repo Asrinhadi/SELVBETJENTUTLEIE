@@ -20,7 +20,7 @@ export function AdminInboxPage() {
   usePageTitle(selected ? `Sak ${selected.reference}` : "Intern innboks")
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10">
+    <div className="animate-fade mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10">
       <PageHeading
         eyebrow="Intern saksflyt"
         title="Intern saksinnboks"
@@ -38,7 +38,7 @@ export function AdminInboxPage() {
           {selected ? (
             <CaseDetail key={selected.id} request={selected} />
           ) : hasSelection ? (
-            <div className="glass flex flex-col items-start gap-4 rounded-2xl p-8">
+            <div className="glass-card flex flex-col items-start gap-4 p-8">
               <h2 className="text-xl font-semibold">Fant ikke saken</h2>
               <p className="text-muted-foreground">
                 Saken finnes ikke i denne nettleserøkten. Den kan ha blitt
@@ -52,7 +52,7 @@ export function AdminInboxPage() {
               </Button>
             </div>
           ) : (
-            <div className="glass flex min-h-72 flex-col items-center justify-center gap-3 rounded-2xl p-8 text-center">
+            <div className="glass-card flex min-h-72 flex-col items-center justify-center gap-3 p-8 text-center">
               <span className="grid size-14 place-items-center rounded-full bg-primary-soft text-primary">
                 <Inbox className="size-7" aria-hidden="true" />
               </span>

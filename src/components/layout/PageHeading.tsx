@@ -16,9 +16,9 @@ export function PageHeading({ eyebrow, title, description, actions }: PageHeadin
             {eyebrow}
           </p>
         )}
-        <h1 className="text-3xl font-semibold sm:text-4xl">{title}</h1>
+        <h1 className="text-[1.75rem] font-semibold sm:text-4xl">{title}</h1>
         {description && (
-          <p className="text-lg text-muted-foreground">{description}</p>
+          <p className="text-base leading-relaxed text-muted-foreground sm:text-lg">{description}</p>
         )}
       </div>
       {actions && <div className="flex shrink-0 gap-2">{actions}</div>}

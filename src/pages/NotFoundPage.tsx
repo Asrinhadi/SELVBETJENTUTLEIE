@@ -9,7 +9,7 @@ export function NotFoundPage() {
   usePageTitle("Siden finnes ikke")
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-10 sm:px-6">
+    <div className="animate-rise mx-auto flex max-w-3xl flex-col gap-6 px-4 py-10 sm:px-6">
       <PageHeading
         title="Siden finnes ikke"
         description="Adressen du gikk til finnes ikke i prototypen."

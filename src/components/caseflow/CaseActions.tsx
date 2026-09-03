@@ -82,7 +82,7 @@ export function CaseActions({ request }: CaseActionsProps) {
   }
 
   return (
-    <section aria-label="Behandle saken" className="flex flex-wrap gap-2">
+    <section aria-label="Behandle saken" className="flex flex-wrap gap-2.5">
       <Button variant="success" onClick={() => openDialog("approve")}>
         <CheckCircle2 aria-hidden="true" />
         Godkjenn
@@ -104,7 +104,7 @@ export function CaseActions({ request }: CaseActionsProps) {
               Når saken godkjennes, gjør systemet følgende automatisk:
             </DialogDescription>
           </DialogHeader>
-          <ul className="list-disc space-y-1 pl-5 text-base">
+          <ul className="glass-panel list-disc space-y-1 border-success-border/70 bg-success-soft/55 py-3.5 pr-4 pl-9 text-base">
             <li>Markerer at bekreftelse til søker er opprettet</li>
             <li>Oppretter oppgaven «Klargjør og send kontrakt»</li>
             <li>Oppretter oppgaven «Opprett fakturagrunnlag»</li>

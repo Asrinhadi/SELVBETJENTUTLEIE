@@ -62,7 +62,7 @@ export function ConfirmationPage() {
 
   if (!request) {
     return (
-      <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-10 sm:px-6">
+      <div className="animate-rise mx-auto flex max-w-3xl flex-col gap-6 px-4 py-10 sm:px-6">
         <PageHeading
           title="Fant ikke forespørselen"
           description="Forespørselen finnes ikke i denne nettleserøkten. Den kan ha blitt fjernet ved nullstilling av demoen."
@@ -91,22 +91,22 @@ export function ConfirmationPage() {
   const price = calculatePrice(request)
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10">
+    <div className="animate-rise mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10">
       <div className="flex flex-col items-center gap-4 text-center">
-        <span className="grid size-20 place-items-center rounded-full bg-success-soft text-success">
-          <CheckCircle2 className="size-11" aria-hidden="true" strokeWidth={2.2} />
+        <span className="grid size-18 place-items-center rounded-full border border-success-border/70 bg-success-soft text-success shadow-[0_16px_40px_-20px_rgba(37,107,69,0.7),inset_0_1px_0_rgba(255,255,255,0.8)] sm:size-20">
+          <CheckCircle2 className="size-10 sm:size-11" aria-hidden="true" strokeWidth={2.2} />
         </span>
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-semibold sm:text-4xl">Forespørselen er mottatt</h1>
-          <p className="text-lg text-muted-foreground">
+          <h1 className="text-[1.75rem] font-semibold sm:text-4xl">Forespørselen er mottatt</h1>
+          <p className="text-base text-muted-foreground sm:text-lg">
             Takk, {request.applicant.name}. Vi har registrert forespørselen din.
           </p>
         </div>
-        <div className="glass flex flex-col items-center gap-1 rounded-2xl px-6 py-4">
+        <div className="glass-card flex flex-col items-center gap-1 rounded-[1.25rem] px-8 py-4">
           <span className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
             Referansenummer
           </span>
-          <span className="font-mono text-3xl font-semibold text-primary">
+          <span className="font-mono text-2xl font-semibold tracking-normal text-primary sm:text-3xl">
             {request.reference}
           </span>
         </div>
@@ -126,7 +126,7 @@ export function ConfirmationPage() {
                 value={formatTimeRange(request.startTime, request.endTime)}
               />
               <SummaryRow label="Formål" value={purpose.label} />
-              <Separator />
+              <Separator className="bg-primary/10" />
               <SummaryRow
                 label="Indikativ tilgjengelighet"
                 value={<AvailabilityBadge status={availability.status} />}
@@ -136,7 +136,7 @@ export function ConfirmationPage() {
                 value={<span className="text-primary">{formatPriceEstimate(price)}</span>}
               />
             </dl>
-            <p className="text-sm text-muted-foreground">
+            <p className="glass-panel border-cream-border/80 bg-cream-soft/70 p-3 text-sm text-muted-foreground">
               Foreløpig pris er ikke et bindende tilbud. Lokalet er ikke reservert
               før du får bekreftelse.
             </p>
@@ -151,7 +151,7 @@ export function ConfirmationPage() {
             <ol className="flex flex-col gap-4">
               {NEXT_STEPS.map((step, index) => (
                 <li key={step.title} className="flex gap-3">
-                  <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-xl border border-primary/10 bg-primary-soft/80 text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
                     <step.icon className="size-5" aria-hidden="true" />
                   </span>
                   <div className="flex flex-col gap-0.5">

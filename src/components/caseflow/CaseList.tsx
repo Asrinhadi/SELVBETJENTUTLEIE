@@ -59,7 +59,7 @@ export function CaseList({ requests, selectedId }: CaseListProps) {
       <div className="flex flex-col gap-3">
         <h2 id="saksliste-tittel" className="text-xl font-semibold">
           Forespørsler
-          <span className="ml-2 text-base font-normal text-muted-foreground">
+          <span className="ml-2 text-base font-normal tracking-normal text-muted-foreground">
             ({visible.length} av {requests.length})
           </span>
         </h2>
@@ -85,10 +85,14 @@ export function CaseList({ requests, selectedId }: CaseListProps) {
         >
           <TabsList
             aria-label="Filtrer på status"
-            className="w-full flex-wrap group-data-horizontal/tabs:h-auto"
+            className="glass-panel w-full flex-wrap gap-1 rounded-xl bg-white/55 p-1 group-data-horizontal/tabs:h-auto"
           >
             {FILTERS.map((f) => (
-              <TabsTrigger key={f.value} value={f.value} className="h-9 px-3 text-sm sm:text-base">
+              <TabsTrigger
+                key={f.value}
+                value={f.value}
+                className="h-9 rounded-lg px-3 text-sm text-muted-foreground transition-[background-color,color,box-shadow] duration-200 hover:text-primary focus-visible:ring-4 focus-visible:ring-primary/25 data-active:bg-white data-active:text-primary data-active:shadow-[0_6px_16px_-8px_rgba(12,49,46,0.45)] sm:text-base"
+              >
                 {f.label}
               </TabsTrigger>
             ))}
@@ -97,7 +101,7 @@ export function CaseList({ requests, selectedId }: CaseListProps) {
       </div>
 
       {visible.length === 0 ? (
-        <p className="glass-inset rounded-2xl border-dashed p-6 text-center text-muted-foreground">
+        <p className="glass-panel border-dashed border-primary/25 p-6 text-center text-muted-foreground">
           Ingen saker samsvarer med filteret.
         </p>
       ) : (
@@ -110,10 +114,12 @@ export function CaseList({ requests, selectedId }: CaseListProps) {
                   to={`/admin/saker/${request.id}`}
                   aria-current={isSelected ? "page" : undefined}
                   className={cn(
-                    "glass group flex items-start gap-3 rounded-2xl p-4 transition-colors outline-none focus-visible:ring-4 focus-visible:ring-ring/35",
+                    // Nivå 3: tekstrik liste – ugjennomsiktig for lesbarhet og for å
+                    // unngå mange blur-lag oppå hverandre.
+                    "surface-solid group flex items-start gap-3 p-4 outline-none focus-visible:ring-4 focus-visible:ring-primary/30",
                     isSelected
-                      ? "border-primary/60 bg-white/85 shadow-[inset_4px_0_0_0_var(--primary)]"
-                      : "hover:border-primary/40 hover:bg-white/80",
+                      ? "border-l-4 border-primary/45 border-l-primary bg-white pl-[calc(1rem-3px)] shadow-[0_10px_28px_-18px_rgba(12,49,46,0.5)]"
+                      : "hover:border-primary/35 hover:bg-white hover:shadow-[0_10px_24px_-18px_rgba(12,49,46,0.45)]",
                   )}
                 >
                   <div className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -147,7 +153,7 @@ export function CaseList({ requests, selectedId }: CaseListProps) {
                     </div>
                   </div>
                   <ChevronRight
-                    className="mt-1 size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+                    className="mt-1 size-5 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-primary"
                     aria-hidden="true"
                   />
                 </Link>

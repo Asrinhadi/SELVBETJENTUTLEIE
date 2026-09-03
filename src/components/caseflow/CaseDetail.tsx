@@ -48,7 +48,7 @@ function DetailItem({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl border border-primary/10 bg-primary-soft/80 text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
         <Icon className="size-5" aria-hidden="true" />
       </span>
       <div className="flex min-w-0 flex-col">
@@ -67,7 +67,7 @@ export function CaseDetail({ request }: CaseDetailProps) {
   const price = calculatePrice(request)
 
   return (
-    <article aria-labelledby="sak-tittel" className="flex flex-col gap-5">
+    <article aria-labelledby="sak-tittel" className="animate-rise flex flex-col gap-5">
       <div className="lg:hidden">
         <Button variant="ghost" size="sm" asChild>
           <Link to="/admin">
@@ -80,7 +80,10 @@ export function CaseDetail({ request }: CaseDetailProps) {
       <Card>
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-3">
-            <h2 id="sak-tittel" className="font-mono text-2xl font-semibold text-primary">
+            <h2
+              id="sak-tittel"
+              className="font-mono text-xl font-semibold tracking-normal text-primary sm:text-2xl"
+            >
               {request.reference}
             </h2>
             <StatusBadge status={request.status} />
@@ -99,13 +102,13 @@ export function CaseDetail({ request }: CaseDetailProps) {
         <CaseActions request={request} />
 
         {request.status === "rejected" && (
-          <p className="rounded-lg border border-danger-border bg-danger-soft p-4 text-base text-danger">
+          <p className="glass-panel border-danger-border bg-danger-soft/80 p-4 text-base text-danger">
             Saken er avslått og kan ikke behandles videre. Se begrunnelsen i
             sakshistorikken.
           </p>
         )}
 
-        <Separator />
+        <Separator className="bg-primary/10" />
 
         <CardContent className="gap-6">
           <dl className="grid gap-5 sm:grid-cols-2">
@@ -127,16 +130,16 @@ export function CaseDetail({ request }: CaseDetailProps) {
           </dl>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="glass-inset flex flex-col gap-1.5 rounded-xl p-4">
-              <span className="text-sm font-semibold text-muted-foreground">
+            <div className="glass-panel flex flex-col gap-1.5 border-success-border/70 bg-success-soft/55 p-4">
+              <span className="text-sm font-semibold text-success">
                 Indikativ tilgjengelighet
               </span>
               <AvailabilityBadge status={availability.status} />
               <p className="text-sm text-muted-foreground">{availability.reason}</p>
             </div>
-            <div className="flex flex-col gap-1 rounded-xl border border-primary/15 bg-primary-soft/70 p-4">
+            <div className="glass-panel flex flex-col gap-1 border-cream-border/80 bg-cream-soft/70 p-4">
               <span className="text-sm font-semibold text-muted-foreground">Foreløpig pris</span>
-              <span className="text-2xl font-semibold text-primary">
+              <span className="text-2xl font-semibold tracking-[-0.02em] text-primary">
                 {formatPriceEstimate(price)}
               </span>
               <p className="text-sm text-muted-foreground">{describePriceEstimate(price)}</p>
@@ -184,7 +187,8 @@ export function CaseDetail({ request }: CaseDetailProps) {
             <h3 id="beskrivelse-tittel" className="text-lg font-semibold">
               Beskrivelse fra søker
             </h3>
-            <p className="glass-inset rounded-xl p-4 text-base leading-relaxed whitespace-pre-line">
+            {/* Nivå 3: mye tekst – ugjennomsiktig flate for maksimal lesbarhet */}
+            <p className="surface-solid p-4 text-base leading-relaxed whitespace-pre-line">
               {request.description}
             </p>
           </section>

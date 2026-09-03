@@ -5,16 +5,17 @@ import { Slot } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-transparent text-base font-medium whitespace-nowrap transition-colors outline-none select-none focus-visible:ring-4 focus-visible:ring-ring/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
+  "group/button inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-transparent text-base font-medium whitespace-nowrap transition-[background-color,border-color,color,box-shadow] duration-200 outline-none select-none focus-visible:ring-4 focus-visible:ring-ring/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
   {
     variants: {
       variant: {
         default:
           "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
         action:
-          "bg-action text-action-foreground shadow-sm hover:bg-action-hover focus-visible:ring-action/35",
+          "bg-action text-action-foreground shadow-[0_12px_28px_-12px_rgba(158,47,73,0.6)] hover:bg-action-hover hover:shadow-[0_14px_32px_-12px_rgba(158,47,73,0.7)] focus-visible:ring-action/35",
         outline:
-          "border-border bg-card text-foreground hover:border-primary/40 hover:bg-primary-soft aria-expanded:bg-primary-soft",
+          "border-primary/25 bg-white/85 text-foreground hover:border-primary/50 hover:bg-white aria-expanded:bg-white",
+        glass: "glass-navigation rounded-full",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-primary-soft",
         ghost: "text-foreground hover:bg-primary-soft",

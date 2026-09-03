@@ -30,6 +30,7 @@ export function TaskList({ tasks, onToggle }: TaskListProps) {
         className="h-2"
         aria-label={`${percent} % av oppgavene er ferdige`}
       />
+
       <ul className="flex flex-col gap-2">
         {tasks.map((task) => {
           const checkboxId = `task-${task.id}`
@@ -37,10 +38,8 @@ export function TaskList({ tasks, onToggle }: TaskListProps) {
             <li
               key={task.id}
               className={cn(
-                "flex items-start gap-3 rounded-xl border p-3.5 transition-colors",
-                task.completed
-                  ? "border-success-border bg-success-soft/60"
-                  : "glass-inset",
+                "surface-solid flex items-start gap-3 p-3.5",
+                task.completed && "border-success-border bg-success-soft/80",
               )}
             >
               <Checkbox

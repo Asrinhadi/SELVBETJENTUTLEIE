@@ -32,23 +32,34 @@ interface BookingFormProps {
 }
 
 function SectionTitle({
+  step,
   icon: Icon,
   title,
   description,
 }: {
+  /** Visuelt trinnnummer («01»). Skjult for skjermlesere – overskriften bærer meningen. */
+  step: string
   icon: typeof Building2
   title: string
   description?: string
 }) {
   return (
-    <CardHeader>
-      <CardTitle className="flex items-center gap-2.5">
-        <span className="grid size-9 place-items-center rounded-lg bg-primary-soft text-primary">
+    <CardHeader className="gap-2">
+      <div className="flex items-center gap-3.5">
+        <span className="grid size-11 shrink-0 place-items-center rounded-2xl border border-primary/10 bg-primary-soft/80 text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
           <Icon className="size-5" aria-hidden="true" />
         </span>
-        {title}
-      </CardTitle>
-      {description && <CardDescription>{description}</CardDescription>}
+        <div className="flex min-w-0 flex-col">
+          <span
+            aria-hidden="true"
+            className="font-mono text-xs font-semibold tracking-[0.2em] text-primary/55"
+          >
+            {step}
+          </span>
+          <CardTitle className="text-[1.35rem] sm:text-2xl">{title}</CardTitle>
+        </div>
+      </div>
+      {description && <CardDescription className="sm:pl-[3.65rem]">{description}</CardDescription>}
     </CardHeader>
   )
 }
@@ -71,7 +82,7 @@ export function BookingForm({ form, formId, minDate, onSubmit }: BookingFormProp
       id={formId}
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-5 sm:gap-6"
       aria-describedby="skjema-intro"
     >
       <p id="skjema-intro" className="sr-only">
@@ -80,6 +91,7 @@ export function BookingForm({ form, formId, minDate, onSubmit }: BookingFormProp
 
       <Card>
         <SectionTitle
+          step="01"
           icon={Building2}
           title="Lokale og tidspunkt"
           description="Velg hvilket bygg du ønsker, og når arrangementet skal være."
@@ -151,6 +163,7 @@ export function BookingForm({ form, formId, minDate, onSubmit }: BookingFormProp
 
       <Card>
         <SectionTitle
+          step="02"
           icon={Megaphone}
           title="Formål"
           description="Formålet bestemmer hvilken sats som gjelder."
@@ -209,6 +222,7 @@ export function BookingForm({ form, formId, minDate, onSubmit }: BookingFormProp
 
       <Card>
         <SectionTitle
+          step="03"
           icon={UserRound}
           title="Kontaktopplysninger"
           description="Vi bruker opplysningene kun til å følge opp forespørselen."
@@ -259,6 +273,7 @@ export function BookingForm({ form, formId, minDate, onSubmit }: BookingFormProp
 
       <Card>
         <SectionTitle
+          step="04"
           icon={CalendarDays}
           title="Om arrangementet"
           description="Fortell kort hva som skal skje, hvor mange som kommer og om dere trenger utstyr."
@@ -286,7 +301,7 @@ export function BookingForm({ form, formId, minDate, onSubmit }: BookingFormProp
             </p>
           </FormField>
 
-          <div className="glass-inset flex flex-col gap-2 rounded-xl p-4">
+          <div className="glass-panel flex flex-col gap-2 p-4">
             <Controller
               control={control}
               name="confirmRequestOnly"

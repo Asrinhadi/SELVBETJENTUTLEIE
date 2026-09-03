@@ -6,10 +6,7 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
-      className={cn(
-        "glass flex flex-col gap-5 rounded-2xl p-5 text-card-foreground sm:p-6",
-        className
-      )}
+      className={cn("glass-card flex flex-col gap-5 p-5 text-card-foreground sm:p-7", className)}
       {...props}
     />
   )
@@ -60,7 +57,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-footer"
       className={cn(
-        "-mx-5 -mb-5 flex flex-wrap items-center gap-3 rounded-b-2xl border-t border-white/60 bg-white/30 px-5 py-4 sm:-mx-6 sm:-mb-6 sm:px-6",
+        "-mx-5 -mb-5 flex flex-wrap items-center gap-3 rounded-b-[calc(var(--glass-card-radius)-1px)] border-t border-white/70 bg-white/35 px-5 py-4 sm:-mx-7 sm:-mb-7 sm:px-7",
         className
       )}
       {...props}

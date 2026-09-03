@@ -123,7 +123,7 @@ export function BookingPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10">
+    <div className="animate-fade mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10">
       <PageHeading
         eyebrow="Offentlig forespørsel"
         title="Send forespørsel om leie av kirke eller menighetslokale"
@@ -137,7 +137,16 @@ export function BookingPage() {
           minDate={minDate}
           onSubmit={handleSubmit}
         />
-        <aside className="lg:sticky lg:top-6" aria-label="Oppsummering av forespørselen">
+        {/*
+          Under lg ligger oppsummeringen i dokumentflyten etter skjemaet.
+          På lg+ er den sticky, med maksimal høyde og egen scroll slik at
+          «Send forespørsel» aldri havner utenfor skjermen på lave vinduer
+          (f.eks. 1024 × 768).
+        */}
+        <aside
+          className="lg:sticky lg:top-8 lg:max-h-[calc(100svh-4rem)] lg:overflow-y-auto lg:overscroll-contain"
+          aria-label="Oppsummering av forespørselen"
+        >
           <SummaryPanel
             data={summary}
             formId={FORM_ID}
