@@ -138,7 +138,7 @@ export function BookingPage() {
           minDate={minDate}
           onSubmit={handleSubmit}
         />
-        <aside className="lg:sticky lg:top-[7.5rem]" aria-label="Oppsummering av forespørselen">
+        <aside className="lg:sticky lg:top-6" aria-label="Oppsummering av forespørselen">
           <SummaryPanel
             data={summary}
             formId={FORM_ID}

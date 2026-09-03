@@ -3,6 +3,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom"
 import { Church, FlaskConical, Inbox, PenLine, RotateCcw } from "lucide-react"
 import { toast } from "sonner"
 
+import headerImage from "@/assets/kirke-header.jpg"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -17,10 +18,10 @@ import { cn } from "@/lib/utils"
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    "inline-flex h-10 items-center gap-2 rounded-lg px-3 text-base font-medium transition-colors outline-none focus-visible:ring-4 focus-visible:ring-ring/35",
+    "inline-flex h-11 items-center gap-2 rounded-full border px-4 text-base font-medium backdrop-blur-md transition-colors outline-none focus-visible:ring-4 focus-visible:ring-white/50",
     isActive
-      ? "bg-primary-soft text-primary"
-      : "text-foreground/80 hover:bg-primary-soft/70 hover:text-primary",
+      ? "border-white bg-white text-primary shadow-md"
+      : "border-white/35 bg-white/15 text-white hover:border-white/60 hover:bg-white/25",
   )
 
 export function SiteHeader() {
@@ -39,9 +40,24 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur supports-backdrop-filter:bg-card/85">
+    <header className="relative isolate overflow-hidden bg-primary text-white">
+      <img
+        src={headerImage}
+        alt=""
+        className="absolute inset-0 -z-20 size-full object-cover object-[center_45%]"
+        fetchPriority="high"
+      />
       <div
-        className="flex items-center justify-center gap-2 bg-primary px-4 py-1.5 text-center text-sm font-medium text-primary-foreground"
+        className="absolute inset-0 -z-10 bg-gradient-to-r from-primary/90 via-primary/70 to-primary/35"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-primary/70 to-transparent"
+        aria-hidden="true"
+      />
+
+      <div
+        className="flex items-center justify-center gap-2 bg-primary/70 px-4 py-1.5 text-center text-sm font-medium backdrop-blur-sm"
         role="note"
         aria-label="Prototypeinformasjon"
       >
@@ -49,24 +65,36 @@ export function SiteHeader() {
         Interaktiv prototype · fiktive data
       </div>
 
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3 sm:px-6">
-        <NavLink
-          to="/"
-          className="flex items-center gap-2.5 rounded-lg outline-none focus-visible:ring-4 focus-visible:ring-ring/35"
-          aria-label="Kirkeutleie – til forsiden"
-        >
-          <span className="grid size-10 place-items-center rounded-lg bg-primary text-primary-foreground">
-            <Church className="size-5" aria-hidden="true" />
-          </span>
-          <span className="flex flex-col leading-tight">
-            <span className="text-lg font-semibold text-primary">Kirkeutleie</span>
-            <span className="text-sm text-muted-foreground">
-              Digital forespørsel og saksflyt
+      <div className="mx-auto flex min-h-52 max-w-7xl flex-col justify-between gap-8 px-4 py-7 sm:min-h-64 sm:px-6 sm:py-9">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <NavLink
+            to="/"
+            className="flex items-center gap-3 rounded-xl outline-none focus-visible:ring-4 focus-visible:ring-white/50"
+            aria-label="Kirkeutleie – til forsiden"
+          >
+            <span className="grid size-12 place-items-center rounded-xl border border-white/40 bg-white/15 backdrop-blur-md sm:size-14">
+              <Church className="size-6 sm:size-7" aria-hidden="true" />
             </span>
-          </span>
-        </NavLink>
+            <span className="flex flex-col leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]">
+              <span className="text-2xl font-semibold sm:text-3xl">Kirkeutleie</span>
+              <span className="text-base text-white/85 sm:text-lg">
+                Digital forespørsel og intern saksflyt
+              </span>
+            </span>
+          </NavLink>
 
-        <nav aria-label="Hovednavigasjon" className="order-3 flex w-full gap-1 sm:order-2 sm:ml-auto sm:w-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setResetOpen(true)}
+            className="border-white/40 bg-white/15 text-white backdrop-blur-md hover:border-white/60 hover:bg-white/25 hover:text-white focus-visible:ring-white/50"
+          >
+            <RotateCcw aria-hidden="true" />
+            Nullstill demo
+          </Button>
+        </div>
+
+        <nav aria-label="Hovednavigasjon" className="flex flex-wrap gap-2">
           <NavLink to="/" end className={navLinkClass}>
             <PenLine className="size-4" aria-hidden="true" />
             Ny forespørsel
@@ -82,17 +110,6 @@ export function SiteHeader() {
             )}
           </NavLink>
         </nav>
-
-        <div className="order-2 ml-auto sm:order-3 sm:ml-0">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setResetOpen(true)}
-          >
-            <RotateCcw aria-hidden="true" />
-            Nullstill demo
-          </Button>
-        </div>
       </div>
 
       <Dialog open={resetOpen} onOpenChange={setResetOpen}>

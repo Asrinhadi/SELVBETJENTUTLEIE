@@ -37,10 +37,10 @@ export function TaskList({ tasks, onToggle }: TaskListProps) {
             <li
               key={task.id}
               className={cn(
-                "flex items-start gap-3 rounded-lg border p-3.5 transition-colors",
+                "flex items-start gap-3 rounded-xl border p-3.5 transition-colors",
                 task.completed
-                  ? "border-success-border bg-success-soft/50"
-                  : "border-border bg-card",
+                  ? "border-success-border bg-success-soft/60"
+                  : "glass-inset",
               )}
             >
               <Checkbox

@@ -102,7 +102,7 @@ export function ConfirmationPage() {
             Takk, {request.applicant.name}. Vi har registrert forespørselen din.
           </p>
         </div>
-        <div className="flex flex-col items-center gap-1 rounded-xl border border-primary/15 bg-primary-soft px-6 py-4">
+        <div className="glass flex flex-col items-center gap-1 rounded-2xl px-6 py-4">
           <span className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
             Referansenummer
           </span>

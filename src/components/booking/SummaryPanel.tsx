@@ -63,7 +63,7 @@ export function SummaryPanel({ data, formId, isSubmitting }: SummaryPanelProps) 
         <section
           aria-live="polite"
           aria-atomic="true"
-          className="flex flex-col gap-2 rounded-lg border border-border bg-background p-4"
+          className="glass-inset flex flex-col gap-2 rounded-xl p-4"
         >
           <h3 className="text-sm font-semibold text-muted-foreground">
             Indikativ tilgjengelighet
@@ -86,7 +86,7 @@ export function SummaryPanel({ data, formId, isSubmitting }: SummaryPanelProps) 
         <section
           aria-live="polite"
           aria-atomic="true"
-          className="flex flex-col gap-1 rounded-lg border border-primary/15 bg-primary-soft/60 p-4"
+          className="flex flex-col gap-1 rounded-xl border border-primary/15 bg-primary-soft/70 p-4"
         >
           <h3 className="text-sm font-semibold text-muted-foreground">Foreløpig pris</h3>
           {data.price ? (

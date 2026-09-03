@@ -38,7 +38,7 @@ export function AdminInboxPage() {
           {selected ? (
             <CaseDetail key={selected.id} request={selected} />
           ) : hasSelection ? (
-            <div className="flex flex-col items-start gap-4 rounded-xl border border-dashed border-border bg-card p-8">
+            <div className="glass flex flex-col items-start gap-4 rounded-2xl p-8">
               <h2 className="text-xl font-semibold">Fant ikke saken</h2>
               <p className="text-muted-foreground">
                 Saken finnes ikke i denne nettleserøkten. Den kan ha blitt
@@ -52,7 +52,7 @@ export function AdminInboxPage() {
               </Button>
             </div>
           ) : (
-            <div className="flex min-h-72 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-card p-8 text-center">
+            <div className="glass flex min-h-72 flex-col items-center justify-center gap-3 rounded-2xl p-8 text-center">
               <span className="grid size-14 place-items-center rounded-full bg-primary-soft text-primary">
                 <Inbox className="size-7" aria-hidden="true" />
               </span>

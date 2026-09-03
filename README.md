@@ -4,8 +4,8 @@ Interaktiv frontend-prototype (fiktive data) som viser hvordan en forespørsel o
 kirke eller menighetslokale kan gå fra et offentlig skjema, via foreløpig pris og indikativ
 tilgjengelighet, til en intern saksinnboks med behandling og automatiske oppgaver.
 
-> Uavhengig studentprototype. Ikke tilknyttet et produksjonssystem, og ingen data sendes til
-> Sarpsborg kirkelige fellesråd.
+> Uavhengig prototype. Ikke tilknyttet et produksjonssystem. Ingen data sendes til
+> Sarpsborg kirkelige fellesråd – alt lagres kun midlertidig i nettleseren.
 
 ## Kom i gang
 
@@ -52,6 +52,7 @@ src/
   components/tasks          Oppgaveliste
   components/layout         Header, footer, sideoppsett
   components/ui             Tilpassede shadcn/ui-komponenter (Radix)
+  assets/                   Headerbilde
   pages/                    Sidene som rutes
   tests/                    Vitest-tester
 ```

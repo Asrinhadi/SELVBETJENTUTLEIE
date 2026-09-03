@@ -286,7 +286,7 @@ export function BookingForm({ form, formId, minDate, onSubmit }: BookingFormProp
             </p>
           </FormField>
 
-          <div className="flex flex-col gap-2 rounded-lg border border-border bg-background p-4">
+          <div className="glass-inset flex flex-col gap-2 rounded-xl p-4">
             <Controller
               control={control}
               name="confirmRequestOnly"

@@ -97,7 +97,7 @@ export function CaseList({ requests, selectedId }: CaseListProps) {
       </div>
 
       {visible.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border p-6 text-center text-muted-foreground">
+        <p className="glass-inset rounded-2xl border-dashed p-6 text-center text-muted-foreground">
           Ingen saker samsvarer med filteret.
         </p>
       ) : (
@@ -110,10 +110,10 @@ export function CaseList({ requests, selectedId }: CaseListProps) {
                   to={`/admin/saker/${request.id}`}
                   aria-current={isSelected ? "page" : undefined}
                   className={cn(
-                    "group flex items-start gap-3 rounded-xl border bg-card p-4 transition-colors outline-none focus-visible:ring-4 focus-visible:ring-ring/35",
+                    "glass group flex items-start gap-3 rounded-2xl p-4 transition-colors outline-none focus-visible:ring-4 focus-visible:ring-ring/35",
                     isSelected
-                      ? "border-primary bg-primary-soft/50 shadow-[inset_4px_0_0_0_var(--primary)]"
-                      : "border-border hover:border-primary/40 hover:bg-primary-soft/30",
+                      ? "border-primary/60 bg-white/85 shadow-[inset_4px_0_0_0_var(--primary)]"
+                      : "hover:border-primary/40 hover:bg-white/80",
                   )}
                 >
                   <div className="flex min-w-0 flex-1 flex-col gap-1.5">

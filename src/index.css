@@ -114,11 +114,30 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
     font-size: 1rem;
     line-height: 1.5;
     min-width: 320px;
     -webkit-font-smoothing: antialiased;
+    /* Myk fargegradient i bakgrunnen slik at glassflatene får noe å bryte lyset mot. */
+    background-color: var(--background);
+    background-image:
+      radial-gradient(
+        70rem 45rem at 8% -5%,
+        color-mix(in oklch, var(--primary) 16%, transparent),
+        transparent 65%
+      ),
+      radial-gradient(
+        55rem 40rem at 100% 15%,
+        color-mix(in oklch, var(--action) 12%, transparent),
+        transparent 65%
+      ),
+      radial-gradient(
+        60rem 40rem at 50% 110%,
+        color-mix(in oklch, var(--primary) 10%, transparent),
+        transparent 65%
+      );
+    background-attachment: fixed;
   }
 
   button:not(:disabled),
@@ -137,6 +156,33 @@
   :focus-visible {
     outline: 3px solid color-mix(in oklch, var(--ring) 60%, transparent);
     outline-offset: 2px;
+  }
+
+  /* Glassaktige flater for kort og paneler */
+  .glass {
+    background-color: color-mix(in oklch, white 62%, transparent);
+    border: 1px solid color-mix(in oklch, white 70%, transparent);
+    box-shadow:
+      0 1px 2px rgba(22, 48, 47, 0.05),
+      0 12px 32px -12px rgba(22, 48, 47, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+  }
+
+  .glass-strong {
+    background-color: color-mix(in oklch, white 86%, transparent);
+    border: 1px solid color-mix(in oklch, white 80%, transparent);
+    box-shadow:
+      0 24px 60px -20px rgba(22, 48, 47, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+  }
+
+  .glass-inset {
+    background-color: color-mix(in oklch, white 45%, transparent);
+    border: 1px solid color-mix(in oklch, white 65%, transparent);
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -18,7 +18,7 @@ const TONE_CLASS: Record<StatCardProps["tone"], string> = {
 
 function StatCard({ label, value, icon: Icon, tone }: StatCardProps) {
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 shadow-[0_1px_2px_rgba(22,48,47,0.06)]">
+    <div className="glass flex items-center gap-4 rounded-2xl p-4">
       <span className={cn("grid size-12 shrink-0 place-items-center rounded-lg", TONE_CLASS[tone])}>
         <Icon className="size-6" aria-hidden="true" />
       </span>

@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/layout/SiteFooter"
 
 export function AppShell() {
   return (
-    <div className="flex min-h-svh flex-col bg-background">
+    <div className="flex min-h-svh flex-col">
       <a
         href="#hovedinnhold"
         className="sr-only z-[60] rounded-md bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:top-3 focus:left-3"

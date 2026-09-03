@@ -127,14 +127,14 @@ export function CaseDetail({ request }: CaseDetailProps) {
           </dl>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5 rounded-lg border border-border bg-background p-4">
+            <div className="glass-inset flex flex-col gap-1.5 rounded-xl p-4">
               <span className="text-sm font-semibold text-muted-foreground">
                 Indikativ tilgjengelighet
               </span>
               <AvailabilityBadge status={availability.status} />
               <p className="text-sm text-muted-foreground">{availability.reason}</p>
             </div>
-            <div className="flex flex-col gap-1 rounded-lg border border-primary/15 bg-primary-soft/60 p-4">
+            <div className="flex flex-col gap-1 rounded-xl border border-primary/15 bg-primary-soft/70 p-4">
               <span className="text-sm font-semibold text-muted-foreground">Foreløpig pris</span>
               <span className="text-2xl font-semibold text-primary">
                 {formatPriceEstimate(price)}
@@ -184,7 +184,7 @@ export function CaseDetail({ request }: CaseDetailProps) {
             <h3 id="beskrivelse-tittel" className="text-lg font-semibold">
               Beskrivelse fra søker
             </h3>
-            <p className="rounded-lg border border-border bg-background p-4 text-base leading-relaxed whitespace-pre-line">
+            <p className="glass-inset rounded-xl p-4 text-base leading-relaxed whitespace-pre-line">
               {request.description}
             </p>
           </section>
