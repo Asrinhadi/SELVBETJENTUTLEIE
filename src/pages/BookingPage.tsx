@@ -51,6 +51,7 @@ export function BookingPage() {
   // `min` i datovelgeren og (via schemaet) i valideringen.
   const today = useMemo(() => new Date(), [])
   const minDate = toIsoDate(today)
+  const maxDate = `${today.getFullYear() + 5}-12-31`
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),
@@ -135,6 +136,7 @@ export function BookingPage() {
           form={form}
           formId={FORM_ID}
           minDate={minDate}
+          maxDate={maxDate}
           onSubmit={handleSubmit}
         />
         {/*

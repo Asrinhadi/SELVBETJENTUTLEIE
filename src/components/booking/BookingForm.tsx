@@ -14,7 +14,14 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { BUILDINGS, PURPOSES } from "@/domain/rental"
-import { DESCRIPTION_MAX, type BookingFormValues } from "@/lib/bookingSchema"
+import {
+  DESCRIPTION_MAX,
+  EMAIL_MAX,
+  NAME_MAX,
+  ORGANIZATION_MAX,
+  PHONE_MAX,
+  type BookingFormValues,
+} from "@/lib/bookingSchema"
 import { fieldA11y } from "@/lib/fieldA11y"
 import { cn } from "@/lib/utils"
 
@@ -28,6 +35,7 @@ interface BookingFormProps {
   form: UseFormReturn<BookingFormValues>
   formId: string
   minDate: string
+  maxDate: string
   onSubmit: (values: BookingFormValues) => void
 }
 
@@ -64,7 +72,7 @@ function SectionTitle({
   )
 }
 
-export function BookingForm({ form, formId, minDate, onSubmit }: BookingFormProps) {
+export function BookingForm({ form, formId, minDate, maxDate, onSubmit }: BookingFormProps) {
   const {
     register,
     control,
@@ -139,6 +147,7 @@ export function BookingForm({ form, formId, minDate, onSubmit }: BookingFormProp
               <Input
                 type="date"
                 min={minDate}
+                max={maxDate}
                 {...register("date")}
                 {...fieldA11y("date", { error: errors.date?.message })}
               />
@@ -209,6 +218,7 @@ export function BookingForm({ form, formId, minDate, onSubmit }: BookingFormProp
               <Input
                 inputMode="numeric"
                 placeholder="f.eks. 40 000"
+                maxLength={21}
                 {...register("estimatedTicketRevenue")}
                 {...fieldA11y("estimatedTicketRevenue", {
                   error: errors.estimatedTicketRevenue?.message,
@@ -232,6 +242,7 @@ export function BookingForm({ form, formId, minDate, onSubmit }: BookingFormProp
             <FormField id="name" label="Navn" error={errors.name?.message}>
               <Input
                 autoComplete="name"
+                maxLength={NAME_MAX}
                 {...register("name")}
                 {...fieldA11y("name", { error: errors.name?.message })}
               />
@@ -244,6 +255,7 @@ export function BookingForm({ form, formId, minDate, onSubmit }: BookingFormProp
             >
               <Input
                 autoComplete="organization"
+                maxLength={ORGANIZATION_MAX}
                 {...register("organization")}
                 {...fieldA11y("organization", {
                   error: errors.organization?.message,
@@ -255,6 +267,7 @@ export function BookingForm({ form, formId, minDate, onSubmit }: BookingFormProp
               <Input
                 type="email"
                 autoComplete="email"
+                maxLength={EMAIL_MAX}
                 {...register("email")}
                 {...fieldA11y("email", { error: errors.email?.message })}
               />
@@ -263,6 +276,7 @@ export function BookingForm({ form, formId, minDate, onSubmit }: BookingFormProp
               <Input
                 type="tel"
                 autoComplete="tel"
+                maxLength={PHONE_MAX}
                 {...register("phone")}
                 {...fieldA11y("phone", { error: errors.phone?.message })}
               />

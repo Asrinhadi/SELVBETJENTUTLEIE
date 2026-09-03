@@ -23,6 +23,7 @@ import { Separator } from "@/components/ui/separator"
 import { useRental } from "@/context/useRental"
 import { getBuilding, getPurpose, type RentalRequest } from "@/domain/rental"
 import { assessAvailability } from "@/lib/availability"
+import { mailtoHref, telHref } from "@/lib/contactLinks"
 import {
   capitalize,
   formatCurrency,
@@ -56,6 +57,16 @@ function DetailItem({
         <dd className="text-base font-medium break-words">{children}</dd>
       </div>
     </div>
+  )
+}
+
+/** Viser en klikkbar kontaktlenke, eller ren tekst om verdien ikke har gyldig form. */
+function ContactLink({ href, children }: { href: string | null; children: ReactNode }) {
+  if (!href) return <>{children}</>
+  return (
+    <a href={href} className="text-primary underline-offset-4 hover:underline">
+      {children}
+    </a>
   )
 }
 
@@ -165,20 +176,14 @@ export function CaseDetail({ request }: CaseDetailProps) {
                 )}
               </DetailItem>
               <DetailItem icon={Mail} label="E-post">
-                <a
-                  href={`mailto:${request.applicant.email}`}
-                  className="text-primary underline-offset-4 hover:underline"
-                >
+                <ContactLink href={mailtoHref(request.applicant.email)}>
                   {request.applicant.email}
-                </a>
+                </ContactLink>
               </DetailItem>
               <DetailItem icon={Phone} label="Telefon">
-                <a
-                  href={`tel:${request.applicant.phone.replace(/\s/g, "")}`}
-                  className="text-primary underline-offset-4 hover:underline"
-                >
+                <ContactLink href={telHref(request.applicant.phone)}>
                   {request.applicant.phone}
-                </a>
+                </ContactLink>
               </DetailItem>
             </dl>
           </section>

@@ -19,6 +19,8 @@ import type { RentalRequest } from "@/domain/rental"
 type ActionKind = "approve" | "reject" | "info"
 
 const MIN_MESSAGE_LENGTH = 10
+/** Samme øvre grense som lagringsskjemaet godtar for en historikkmelding. */
+const MAX_MESSAGE_LENGTH = 1000
 
 interface CaseActionsProps {
   request: RentalRequest
@@ -48,6 +50,10 @@ export function CaseActions({ request }: CaseActionsProps) {
     const trimmed = message.trim()
     if (trimmed.length < MIN_MESSAGE_LENGTH) {
       setError(`Skriv minst ${MIN_MESSAGE_LENGTH} tegn.`)
+      return null
+    }
+    if (trimmed.length > MAX_MESSAGE_LENGTH) {
+      setError(`Teksten kan være maks ${MAX_MESSAGE_LENGTH} tegn.`)
       return null
     }
     return trimmed
@@ -214,6 +220,7 @@ function MessageField({ id, label, value, error, placeholder, onChange }: Messag
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         rows={4}
+        maxLength={MAX_MESSAGE_LENGTH}
         aria-required="true"
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}

@@ -15,6 +15,15 @@ const TIME_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/
 export const DESCRIPTION_MIN = 10
 export const DESCRIPTION_MAX = 600
 export const PAST_DATE_MESSAGE = "Du kan ikke velge en dato tilbake i tid."
+export const FAR_FUTURE_MESSAGE = "Datoen kan ikke være mer enn fem år fram i tid."
+
+/** Øvre grenser. Hindrer at ekstremt lange verdier fyller lageret eller vises i UI-et. */
+export const NAME_MAX = 100
+export const ORGANIZATION_MAX = 120
+export const EMAIL_MAX = 254
+export const PHONE_MAX = 20
+export const MAX_TICKET_REVENUE = 100_000_000
+const MAX_YEARS_AHEAD = 5
 
 export function isBuildingId(value: string): value is BuildingId {
   return (BUILDING_IDS as readonly string[]).includes(value)
@@ -43,6 +52,10 @@ export function createBookingSchema(getToday: () => string = todayIsoDate) {
       .refine(
         (value) => getWeekday(value) === null || !isBeforeDay(value, getToday()),
         PAST_DATE_MESSAGE,
+      )
+      .refine(
+        (value) => getWeekday(value) === null || !isTooFarAhead(value, getToday()),
+        FAR_FUTURE_MESSAGE,
       ),
     startTime: z
       .string()
@@ -54,13 +67,22 @@ export function createBookingSchema(getToday: () => string = todayIsoDate) {
       .regex(TIME_PATTERN, "Sluttid må være på formatet TT:MM."),
     purposeId: z.string().min(1, "Velg formålet med leien."),
     estimatedTicketRevenue: z.string().trim(),
-    name: z.string().trim().min(2, "Skriv inn navnet ditt."),
-    organization: z.string().trim().max(120, "Maks 120 tegn."),
-    email: z.email({ error: "Skriv inn en gyldig e-postadresse." }),
+    name: z
+      .string()
+      .trim()
+      .min(2, "Skriv inn navnet ditt.")
+      .max(NAME_MAX, `Navnet kan være maks ${NAME_MAX} tegn.`),
+    organization: z.string().trim().max(ORGANIZATION_MAX, `Maks ${ORGANIZATION_MAX} tegn.`),
+    email: z
+      .string()
+      .trim()
+      .max(EMAIL_MAX, `E-postadressen kan være maks ${EMAIL_MAX} tegn.`)
+      .pipe(z.email({ error: "Skriv inn en gyldig e-postadresse." })),
     phone: z
       .string()
       .trim()
       .min(8, "Telefonnummeret må ha minst åtte tegn.")
+      .max(PHONE_MAX, `Telefonnummeret kan være maks ${PHONE_MAX} tegn.`)
       .regex(
         /^[+\d\s()-]+$/,
         "Telefonnummeret kan bare inneholde tall, mellomrom, + og bindestrek.",
@@ -103,19 +125,43 @@ export function createBookingSchema(getToday: () => string = todayIsoDate) {
           path: ["estimatedTicketRevenue"],
           message: "Oppgi estimert billettinntekt i hele kroner (større enn 0).",
         })
+      } else if (revenue > MAX_TICKET_REVENUE) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["estimatedTicketRevenue"],
+          message: "Beløpet er urimelig høyt. Ta kontakt med oss direkte.",
+        })
       }
     }
   })
+}
+
+/** Sann hvis datoen ligger mer enn MAX_YEARS_AHEAD år etter `todayIso`. */
+function isTooFarAhead(isoDate: string, todayIso: string): boolean {
+  const year = Number(isoDate.slice(0, 4))
+  const todayYear = Number(todayIso.slice(0, 4))
+  if (!Number.isFinite(year) || !Number.isFinite(todayYear)) return false
+  return year > todayYear + MAX_YEARS_AHEAD
 }
 
 export const bookingSchema = createBookingSchema()
 
 export type BookingFormValues = z.infer<typeof bookingSchema>
 
-/** Tolker et fritekstbeløp («40 000», «40000», «40.000») til hele kroner. */
+/**
+ * Tolker et fritekstbeløp («40 000», «40000», «40.000», «1500,50») til hele kroner.
+ *
+ * Etter at tusenskiller er fjernet må resten være et rent desimaltall.
+ * Det avviser blant annet heksadesimal («0x2710»), eksponentnotasjon
+ * («1e15»), fortegn («-500») og «Infinity», som `Number()` ellers godtar.
+ */
 export function parseRevenue(value: string): number | null {
-  const cleaned = value.replace(/[\s.]/g, "").replace(",", ".")
-  if (cleaned.length === 0) return null
+  const trimmed = value.trim()
+  if (trimmed.length === 0 || trimmed.length > 21) return null
+
+  const cleaned = trimmed.replace(/[\s .]/g, "").replace(",", ".")
+  if (!/^\d+(?:\.\d{1,2})?$/.test(cleaned)) return null
+
   const parsed = Number(cleaned)
   if (!Number.isFinite(parsed)) return null
   return Math.round(parsed)
