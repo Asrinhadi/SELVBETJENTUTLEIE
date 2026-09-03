@@ -75,11 +75,9 @@ export function SiteHeader() {
             <Inbox className="size-4" aria-hidden="true" />
             Intern innboks
             {stats.newCount > 0 && (
-              <span
-                className="grid min-w-6 place-items-center rounded-full bg-action px-1.5 text-sm font-semibold text-action-foreground"
-                aria-label={`${stats.newCount} nye saker`}
-              >
-                {stats.newCount}
+              <span className="grid min-w-6 place-items-center rounded-full bg-action px-1.5 text-sm font-semibold text-action-foreground">
+                <span aria-hidden="true">{stats.newCount}</span>
+                <span className="sr-only">{stats.newCount} nye saker</span>
               </span>
             )}
           </NavLink>

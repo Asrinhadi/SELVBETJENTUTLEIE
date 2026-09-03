@@ -7,7 +7,6 @@ export interface InboxStats {
   newCount: number
   waitingCount: number
   openTaskCount: number
-  total: number
 }
 
 export interface RentalContextValue {

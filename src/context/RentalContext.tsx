@@ -98,7 +98,6 @@ export function RentalProvider({ children, initialState }: RentalProviderProps) 
       newCount: state.requests.filter((r) => r.status === "new").length,
       waitingCount: state.requests.filter((r) => r.status === "needs_info").length,
       openTaskCount: countOpenTasks(state.requests),
-      total: state.requests.length,
     }),
     [state.requests],
   )

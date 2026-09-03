@@ -21,6 +21,9 @@ import { cn } from "@/lib/utils"
 const REVENUE_HINT =
   "Leien beregnes som 15 % av billettinntektene, med minimumsbeløp per prisgruppe."
 
+/** Litt slingringsmonn over grensen slik at brukeren ser feilmeldingen i stedet for å bli stoppet stille. */
+const DESCRIPTION_HARD_LIMIT = DESCRIPTION_MAX + 50
+
 interface BookingFormProps {
   form: UseFormReturn<BookingFormValues>
   formId: string
@@ -268,7 +271,7 @@ export function BookingForm({ form, formId, minDate, onSubmit }: BookingFormProp
           >
             <Textarea
               rows={5}
-              maxLength={DESCRIPTION_MAX + 50}
+              maxLength={DESCRIPTION_HARD_LIMIT}
               {...register("description")}
               {...fieldA11y("description", { error: errors.description?.message })}
             />

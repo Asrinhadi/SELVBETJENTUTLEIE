@@ -5,7 +5,6 @@ import type { RentalRequest } from "@/domain/rental"
  * er oppdiktet. Nummerserien fortsetter fra DEMO_NEXT_SEQUENCE når nye
  * forespørsler sendes inn.
  */
-export const DEMO_YEAR = 2026
 export const DEMO_NEXT_SEQUENCE = 42
 
 export const DEMO_REQUESTS: readonly RentalRequest[] = [

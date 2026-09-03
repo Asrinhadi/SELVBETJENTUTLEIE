@@ -26,7 +26,6 @@ const historyEventSchema = z.object({
     "tasks_created",
     "task_completed",
     "task_reopened",
-    "note",
   ]),
   timestamp: z.string(),
   actor: z.string(),

@@ -6,7 +6,6 @@ import {
   MessageCircleQuestion,
   RotateCcw,
   Send,
-  StickyNote,
   XCircle,
 } from "lucide-react"
 
@@ -23,7 +22,6 @@ const ICONS: Record<HistoryEventType, { Icon: typeof Send; className: string }> 
   tasks_created: { Icon: ListChecks, className: "bg-primary-soft text-primary" },
   task_completed: { Icon: CircleCheckBig, className: "bg-success-soft text-success" },
   task_reopened: { Icon: RotateCcw, className: "bg-muted text-muted-foreground" },
-  note: { Icon: StickyNote, className: "bg-muted text-muted-foreground" },
 }
 
 export function CaseHistory({ history }: { history: readonly HistoryEvent[] }) {

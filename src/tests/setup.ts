@@ -13,8 +13,20 @@ beforeAll(() => {
   if (typeof window.ResizeObserver === "undefined") {
     window.ResizeObserver = ResizeObserverStub
   }
-  if (typeof window.HTMLElement.prototype.scrollIntoView !== "function") {
-    window.HTMLElement.prototype.scrollIntoView = () => {}
+
+  // Radix Select bruker pointer capture og scrollIntoView, som jsdom ikke implementerer.
+  const elementPrototype = window.HTMLElement.prototype
+  if (typeof elementPrototype.scrollIntoView !== "function") {
+    elementPrototype.scrollIntoView = () => {}
+  }
+  if (typeof elementPrototype.hasPointerCapture !== "function") {
+    elementPrototype.hasPointerCapture = () => false
+  }
+  if (typeof elementPrototype.setPointerCapture !== "function") {
+    elementPrototype.setPointerCapture = () => {}
+  }
+  if (typeof elementPrototype.releasePointerCapture !== "function") {
+    elementPrototype.releasePointerCapture = () => {}
   }
 })
 

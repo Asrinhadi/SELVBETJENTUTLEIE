@@ -138,7 +138,6 @@ export type HistoryEventType =
   | "tasks_created"
   | "task_completed"
   | "task_reopened"
-  | "note"
 
 export interface HistoryEvent {
   id: string

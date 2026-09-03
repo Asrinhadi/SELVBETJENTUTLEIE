@@ -83,7 +83,10 @@ export function CaseList({ requests, selectedId }: CaseListProps) {
             if (isFilter(value)) setFilter(value)
           }}
         >
-          <TabsList aria-label="Filtrer på status" className="h-auto w-full flex-wrap">
+          <TabsList
+            aria-label="Filtrer på status"
+            className="w-full flex-wrap group-data-horizontal/tabs:h-auto"
+          >
             {FILTERS.map((f) => (
               <TabsTrigger key={f.value} value={f.value} className="h-9 px-3 text-sm sm:text-base">
                 {f.label}
