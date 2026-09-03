@@ -12,7 +12,7 @@ dist
 dist-ssr
 *.local
 
-# Miljøvariabler og lokale verktøyfiler
+# Miljøvariabler
 .env
 .env.*
 !.env.example
