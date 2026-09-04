@@ -50,7 +50,7 @@ export function buildInitialWizardData(today: Date = new Date()): WizardData {
       name: "Kari Nordmann",
       organization: "Borg vokalensemble",
       email: "kari.nordmann@example.com",
-      phone: "912 34 567",
+      phone: "900 00 100",
     },
   }
 }
@@ -86,7 +86,11 @@ export type FieldErrors = Partial<Record<string, string>>
 
 export const DESCRIPTION_MIN = 15
 export const DESCRIPTION_MAX = 800
+export const OTHER_NEEDS_MAX = 800
 export const MAX_ATTENDEES = 2000
+export const MAX_BUFFER_MINUTES = 600
+/** Hvor langt fram i tid en forespørsel kan gjelde. */
+const MAX_YEARS_AHEAD = 5
 
 export function validateStep1(needs: EventNeeds): FieldErrors {
   const errors: FieldErrors = {}
@@ -106,8 +110,12 @@ export function validateStep1(needs: EventNeeds): FieldErrors {
 
   if (!needs.date) {
     errors.date = "Velg ønsket dato."
+  } else if (!/^\d{4}-\d{2}-\d{2}$/.test(needs.date)) {
+    errors.date = "Datoen er ikke gyldig."
   } else if (needs.date < today) {
     errors.date = "Du kan ikke velge en dato tilbake i tid."
+  } else if (Number(needs.date.slice(0, 4)) > Number(today.slice(0, 4)) + MAX_YEARS_AHEAD) {
+    errors.date = `Datoen kan ikke være mer enn ${MAX_YEARS_AHEAD} år fram i tid.`
   }
 
   if (!needs.startTime) errors.startTime = "Velg starttid."
@@ -122,6 +130,18 @@ export function validateStep1(needs: EventNeeds): FieldErrors {
 
   if (needs.eventType === "annet" && needs.otherNeeds.trim().length === 0) {
     errors.otherNeeds = "Beskriv hva arrangementet går ut på."
+  } else if (needs.otherNeeds.trim().length > OTHER_NEEDS_MAX) {
+    errors.otherNeeds = `Teksten kan være maks ${OTHER_NEEDS_MAX} tegn.`
+  }
+
+  // Verdiene kommer fra nedtrekk, men valideres likevel: DOM-en kan endres.
+  for (const [field, value] of [
+    ["setupMinutes", needs.setupMinutes],
+    ["cleanupMinutes", needs.cleanupMinutes],
+  ] as const) {
+    if (!Number.isInteger(value) || value < 0 || value > MAX_BUFFER_MINUTES) {
+      errors[field] = `Velg et tidsrom mellom 0 og ${MAX_BUFFER_MINUTES} minutter.`
+    }
   }
 
   return errors

@@ -30,7 +30,7 @@ const NEEDS: EventNeeds = {
 const APPLICANT = {
   name: "Kari Nordmann",
   email: "kari.nordmann@example.com",
-  phone: "912 34 567",
+  phone: "900 00 100",
 }
 
 describe("saksnummer", () => {

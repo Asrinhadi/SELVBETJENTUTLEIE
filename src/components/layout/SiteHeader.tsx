@@ -64,7 +64,7 @@ export function SiteHeader() {
         aria-label="Prototypeinformasjon"
       >
         <FlaskConical className="size-4 shrink-0" aria-hidden="true" />
-        Interaktiv prototype · fiktive data og fiktive regler
+        Frontend-prototype · fiktive data og fiktive regler · ingenting sendes eksternt
       </div>
 
       <div className="mx-auto flex min-h-44 max-w-[95rem] flex-col justify-between gap-6 px-4 py-6 sm:min-h-52 sm:px-6 sm:py-7">
@@ -100,7 +100,7 @@ export function SiteHeader() {
           </NavLink>
           <NavLink to="/saksbehandling" className={NAV_LINK_CLASS}>
             <Inbox className="size-4" aria-hidden="true" />
-            Saksbehandling
+            Saksbehandlerdemo
             {stats.awaitingReview > 0 && (
               <span className="grid min-w-6 place-items-center rounded-full bg-action px-1.5 text-sm font-semibold text-action-foreground">
                 <span aria-hidden="true">{stats.awaitingReview}</span>

@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Phone,
   ScrollText,
+  ShieldAlert,
   Users,
 } from "lucide-react"
 
@@ -75,12 +76,18 @@ export function AdminCasePage() {
 
   return (
     <div className="animate-rise mx-auto flex max-w-[95rem] flex-col gap-5 px-4 py-6 sm:gap-6 sm:px-6 sm:py-8">
-      <Button variant="ghost" size="sm" asChild className="self-start">
-        <Link to="/saksbehandling">
-          <ArrowLeft aria-hidden="true" />
-          Tilbake til innboksen
-        </Link>
-      </Button>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/saksbehandling">
+            <ArrowLeft aria-hidden="true" />
+            Tilbake til innboksen
+          </Link>
+        </Button>
+        <span className="inline-flex items-center gap-2 rounded-full border border-warning-border bg-warning-soft/70 px-3 py-1 text-sm font-medium text-warning">
+          <ShieldAlert className="size-4 shrink-0" aria-hidden="true" />
+          Saksbehandlerdemo – fiktiv sak, ingen innlogging
+        </span>
+      </div>
 
       <Card>
         <div className="flex flex-col gap-3">

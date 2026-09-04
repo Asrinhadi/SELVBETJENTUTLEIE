@@ -6,6 +6,7 @@ import {
   Inbox,
   MessageCircleQuestion,
   Search,
+  ShieldAlert,
   UserX,
 } from "lucide-react"
 
@@ -71,7 +72,7 @@ function StatCard({
 }
 
 export function AdminInboxPage() {
-  usePageTitle("Saksbehandling")
+  usePageTitle("Saksbehandlerdemo")
   const { state, stats } = useKirkeFlow()
 
   const [query, setQuery] = useState("")
@@ -135,10 +136,19 @@ export function AdminInboxPage() {
   return (
     <div className="animate-fade mx-auto flex max-w-[95rem] flex-col gap-5 px-4 py-6 sm:gap-6 sm:px-6 sm:py-8">
       <PageHeading
-        eyebrow="Intern saksbehandling"
+        eyebrow="Saksbehandlerdemo – fiktive saker"
         title="Felles innboks"
         description="Alle forespørsler i fellesrådet, med automatisk kontroll, kalenderstatus og kompleksitet."
       />
+
+      <p className="glass-panel flex items-start gap-2.5 border-warning-border bg-warning-soft/70 p-3.5 text-base text-warning">
+        <ShieldAlert className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+        <span>
+          <strong>Åpen demoside uten innlogging.</strong> Dette er ikke et beskyttet område,
+          og skal ikke oppfattes som tilgangskontroll. Alle saker er oppdiktet. I et ekte
+          system måtte autentisering og tilgangskontroll vært håndhevet på serveren.
+        </span>
+      </p>
 
       <section aria-label="Nøkkeltall" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Til vurdering" value={stats.awaitingReview} icon={Inbox} tone="info" />

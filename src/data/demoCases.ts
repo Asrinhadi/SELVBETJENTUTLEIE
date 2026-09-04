@@ -9,8 +9,13 @@ import { toIsoDate } from "@/lib/dates"
 import { STAFF } from "@/data/staff"
 
 /**
- * Fiktive saker som demoen starter med. Alle navn og kontaktopplysninger er
- * oppdiktet, og sakene bygges med de samme motorene som ekte forespørsler.
+ * Fiktive saker som demoen starter med. Sakene bygges med de samme motorene
+ * som ekte forespørsler.
+ *
+ * Alle kontaktopplysninger er oppdiktet: e-postadressene bruker de
+ * IANA-reserverte example-domenene, og telefonnumrene følger et åpenbart
+ * plassholdermønster (900 00 1xx) slik at de ikke kan forveksles med
+ * nummeret til en virkelig person.
  */
 export const DEMO_START_SEQUENCE = 142
 
@@ -49,7 +54,7 @@ function seeds(today: Date): DemoSeed[] {
         name: "Ingrid Solberg",
         organization: "Sarpsborg kammerkor",
         email: "ingrid.solberg@example.org",
-        phone: "917 45 210",
+        phone: "900 00 101",
       },
       createdOffsetDays: -2,
     },
@@ -74,7 +79,7 @@ function seeds(today: Date): DemoSeed[] {
       applicant: {
         name: "Jonas Halvorsen",
         email: "jonas.halvorsen@example.net",
-        phone: "402 18 776",
+        phone: "900 00 102",
       },
       createdOffsetDays: -5,
       action: "info",
@@ -98,7 +103,7 @@ function seeds(today: Date): DemoSeed[] {
         name: "Marte Eide",
         organization: "Tune ungdomskor",
         email: "marte.eide@example.com",
-        phone: "958 33 104",
+        phone: "900 00 103",
       },
       createdOffsetDays: -8,
       action: "approve",
@@ -126,7 +131,7 @@ function seeds(today: Date): DemoSeed[] {
         name: "Per Kristian Lunde",
         organization: "Sarpsborg historielag",
         email: "pk.lunde@example.org",
-        phone: "926 70 431",
+        phone: "900 00 104",
       },
       createdOffsetDays: -3,
       action: "assign",
@@ -149,7 +154,7 @@ function seeds(today: Date): DemoSeed[] {
         name: "Solveig Aas",
         organization: "Kurland menighetsråd",
         email: "solveig.aas@example.org",
-        phone: "481 20 933",
+        phone: "900 00 105",
       },
       createdOffsetDays: -1,
     },
@@ -176,7 +181,7 @@ function seeds(today: Date): DemoSeed[] {
         name: "Even Bakke",
         organization: "Østfold Live",
         email: "even.bakke@example.com",
-        phone: "934 55 128",
+        phone: "900 00 106",
       },
       createdOffsetDays: -6,
       action: "reject",

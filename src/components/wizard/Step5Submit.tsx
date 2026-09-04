@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { UserRound } from "lucide-react"
+import { TriangleAlert, UserRound } from "lucide-react"
 
 import { AvailabilityBadge } from "@/components/case/AvailabilityBadge"
 import { SuitabilityBadge } from "@/components/venue/SuitabilityBadge"
@@ -61,6 +61,13 @@ export function Step5Submit({
           </div>
         </CardHeader>
         <CardContent>
+          <p className="glass-panel flex items-start gap-2 border-warning-border bg-warning-soft/70 p-3.5 text-base text-warning">
+            <TriangleAlert className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+            <span>
+              <strong>Ikke skriv inn ekte personopplysninger i demoen.</strong> Feltene er
+              forhåndsutfylt med oppdiktede opplysninger. Ingenting sendes ut av nettleseren.
+            </span>
+          </p>
           <div className="grid gap-5 sm:grid-cols-2">
             <FormField id="name" label="Navn" error={errors.name}>
               <Input

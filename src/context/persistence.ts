@@ -19,6 +19,12 @@ const STORAGE_VERSION = 1
  * regnes ut på nytt ved innlasting, slik at lagret data aldri kommer ut av
  * synk med motorene. Lagret innhold er brukerredigerbart og behandles som
  * utrygg inndata: alt valideres, med lengde- og antallsgrenser.
+ *
+ * Vi bruker sessionStorage, ikke localStorage: saken inneholder navn,
+ * e-post og telefonnummer, og skal ikke bli liggende igjen i nettleseren
+ * etter at fanen lukkes – særlig ikke på en delt maskin. Demoen overlever
+ * fortsatt navigasjon og oppdatering av siden. Ingenting sendes ut av
+ * nettleseren.
  */
 const MAX_CASES = 100
 const MAX_TEXT = 2000
@@ -107,7 +113,7 @@ type PersistedCase = z.infer<typeof caseSchema>
 function getStorage(): Storage | null {
   try {
     if (typeof window === "undefined") return null
-    return window.localStorage
+    return window.sessionStorage
   } catch {
     return null
   }

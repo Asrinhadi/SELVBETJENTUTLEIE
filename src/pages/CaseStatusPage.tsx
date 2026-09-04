@@ -20,6 +20,8 @@ import { getVenue } from "@/domain/venue"
 import { capitalize, formatCurrency, formatDateTime, formatLongDate } from "@/lib/formatters"
 import { usePageTitle } from "@/lib/usePageTitle"
 
+const MAX_REPLY_LENGTH = 1000
+
 /** Fiktiv, veiledende behandlingstid basert på hvor sammensatt saken er. */
 const PROCESSING_TIME: Record<string, string> = {
   lav: "2–3 virkedager",
@@ -68,6 +70,10 @@ export function CaseStatusPage() {
     const body = reply.trim()
     if (body.length < 5) {
       toast.error("Skriv et litt lengre svar")
+      return
+    }
+    if (body.length > MAX_REPLY_LENGTH) {
+      toast.error(`Svaret kan være maks ${MAX_REPLY_LENGTH} tegn`)
       return
     }
     replyAsApplicant(request.id, body)
@@ -186,7 +192,7 @@ export function CaseStatusPage() {
                   <Textarea
                     id="svar"
                     rows={3}
-                    maxLength={1000}
+                    maxLength={MAX_REPLY_LENGTH}
                     value={reply}
                     onChange={(e) => setReply(e.target.value)}
                     placeholder="Skriv svaret ditt her."

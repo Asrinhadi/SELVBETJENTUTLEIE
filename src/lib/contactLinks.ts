@@ -2,7 +2,7 @@
  * Bygger «mailto:»- og «tel:»-lenker fra kontaktopplysninger.
  *
  * Opplysningene kan komme fra lagret tilstand, som brukeren selv kan endre i
- * nettleseren. Uten kontroll kan en e-postadresse som «ok@x.no?bcc=…&subject=…»
+ * nettleseren. Uten kontroll kan en e-postadresse som «ok@example.no?bcc=…&subject=…»
  * smugle inn ekstra mailto-parametere og forhåndsutfylle blindkopi eller emne
  * i mottakerens e-postklient. Verdier som ikke har gyldig form får derfor
  * ingen lenke – de vises som ren tekst i stedet.
