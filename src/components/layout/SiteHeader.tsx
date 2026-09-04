@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { NavLink, useLocation, useNavigate } from "react-router-dom"
-import { Church, FlaskConical, Inbox, PenLine, RotateCcw } from "lucide-react"
+import { Church, Inbox, PenLine, RotateCcw } from "lucide-react"
 import { toast } from "sonner"
 
 import headerImage from "@/assets/kirke-header.jpg"
@@ -57,15 +57,6 @@ export function SiteHeader() {
         className="pointer-events-none absolute -top-16 -left-10 -z-10 size-[26rem] rounded-full bg-[radial-gradient(closest-side,rgba(255,255,255,0.16),transparent_72%)]"
         aria-hidden="true"
       />
-
-      <div
-        className="flex items-center justify-center gap-2 border-b border-white/15 bg-primary/60 px-4 py-1.5 text-center text-sm font-medium"
-        role="note"
-        aria-label="Prototypeinformasjon"
-      >
-        <FlaskConical className="size-4 shrink-0" aria-hidden="true" />
-        Frontend-prototype · fiktive data og fiktive regler · ingenting sendes eksternt
-      </div>
 
       <div className="mx-auto flex min-h-44 max-w-[95rem] flex-col justify-between gap-6 px-4 py-6 sm:min-h-52 sm:px-6 sm:py-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
