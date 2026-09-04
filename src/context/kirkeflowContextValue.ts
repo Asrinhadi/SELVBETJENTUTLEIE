@@ -19,7 +19,7 @@ export interface KirkeFlowContextValue {
   getCaseByNumber: (caseNumber: string) => BookingRequest | undefined
   submitCase: (input: Omit<CreateCaseInput, "calendar">) => BookingRequest
   assign: (caseId: string, staffId: string) => void
-  approve: (caseId: string) => void
+  approve: (caseId: string, overrideReason?: string) => void
   confirmPayment: (caseId: string) => void
   reject: (caseId: string, reason: string) => void
   requestInfo: (caseId: string, message: string) => void

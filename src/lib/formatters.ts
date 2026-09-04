@@ -48,6 +48,11 @@ export function formatMinutes(minutes: number): string {
   return `${h} t ${m} min`
 }
 
+/** «1 punkt» / «3 punkter» */
+export function pluralPunkt(count: number): string {
+  return count === 1 ? "1 punkt" : `${count} punkter`
+}
+
 export function capitalize(text: string): string {
   if (text.length === 0) return text
   return text.charAt(0).toUpperCase() + text.slice(1)

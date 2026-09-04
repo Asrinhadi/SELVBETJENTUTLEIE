@@ -4,7 +4,12 @@ import { describe, expect, it } from "vitest"
 import { buildDemoCalendar } from "@/data/calendar"
 import { createInitialState, kirkeflowReducer } from "@/context/kirkeflowReducer"
 import { assessComplexity, findMissingInfo } from "@/domain/complexity"
-import { approveCase, buildCaseNumber, createCase } from "@/domain/caseflow"
+import {
+  approveCase,
+  buildCaseNumber,
+  createCase,
+  hasCalendarConflict,
+} from "@/domain/caseflow"
 import { assessAvailability } from "@/domain/availabilityEngine"
 import { evaluateVenue } from "@/domain/suitabilityEngine"
 import type { EventNeeds } from "@/domain/event"
@@ -111,6 +116,65 @@ describe("godkjenning", () => {
     // Saken står nå på venter_betaling, og godkjenning skal ikke kjøre på nytt.
     const before = request.events.length
     expect(approveCase(request, "Anne Lie", NOW).events.length).toBe(before + 2)
+  })
+})
+
+describe("kalenderkonflikt blokkerer godkjenning", () => {
+  /** Legger arrangementet oppå en bekreftet booking i demokalenderen. */
+  function conflictingCase() {
+    const conflict = CALENDAR.find((b) => b.kind === "bekreftet")
+    if (!conflict) throw new Error("Forventet en bekreftet booking i demokalenderen")
+    const needs: EventNeeds = {
+      ...NEEDS,
+      date: conflict.date,
+      startTime: conflict.start,
+      endTime: conflict.end,
+      requiredFacilities: [],
+    }
+    return createCase(
+      { needs, venueId: conflict.venueId, applicant: APPLICANT, calendar: CALENDAR },
+      200,
+      NOW,
+    )
+  }
+
+  it("oppdager konflikten", () => {
+    const request = conflictingCase()
+    expect(hasCalendarConflict(request)).toBe(true)
+    expect(request.availability.state).toBe("opptatt")
+  })
+
+  it("nekter godkjenning uten begrunnelse", () => {
+    const request = conflictingCase()
+    const attempted = approveCase(request, "Anne Lie", NOW)
+    expect(attempted).toBe(request)
+    expect(attempted.status).not.toBe("godkjent")
+    expect(attempted.status).not.toBe("venter_betaling")
+  })
+
+  it("tillater overstyring med begrunnelse, og fører den i loggen", () => {
+    const request = conflictingCase()
+    const approved = approveCase(
+      request,
+      "Anne Lie",
+      NOW,
+      "Den andre oppføringen er avlyst og fjernes i dag.",
+    )
+    expect(approved.status).toBe("venter_betaling")
+    const override = approved.events.find((e) => e.type === "konflikt_overstyrt")
+    expect(override).toBeDefined()
+    expect(override?.actor).toBe("Anne Lie")
+    expect(override?.message).toMatch(/avlyst/)
+  })
+
+  it("saker uten konflikt godkjennes som før", () => {
+    const request = createCase(
+      { needs: NEEDS, venueId: "hafslund-menighetssal", applicant: APPLICANT, calendar: CALENDAR },
+      201,
+      NOW,
+    )
+    expect(hasCalendarConflict(request)).toBe(false)
+    expect(approveCase(request, "Anne Lie", NOW).status).toBe("venter_betaling")
   })
 })
 

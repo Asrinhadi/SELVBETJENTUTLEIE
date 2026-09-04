@@ -118,6 +118,43 @@ describe("bemanningsregelen", () => {
   })
 })
 
+describe("poengsummen skiller mellom lokaler", () => {
+  /** 80 personer: lokalene har svært ulik størrelse og må få ulik score. */
+  const NEEDS: EventNeeds = {
+    ...CONCERT,
+    expectedAttendees: 80,
+    requiredFacilities: [],
+    needsStage: false,
+  }
+
+  it("gir ikke samme poengsum til lokaler med svært ulik størrelse", () => {
+    const scores = ["sarpsborg-kirke", "tune-kirke", "greaker-menighetshus", "hafslund-menighetssal"]
+      .map((id) => evaluateVenue(NEEDS, getVenue(id as Parameters<typeof getVenue>[0])).score)
+    expect(new Set(scores).size).toBe(scores.length)
+  })
+
+  it("rangerer det riktig dimensjonerte lokalet høyest", () => {
+    const greaker = evaluateVenue(NEEDS, getVenue("greaker-menighetshus")).score
+    const tune = evaluateVenue(NEEDS, getVenue("tune-kirke")).score
+    const sarpsborg = evaluateVenue(NEEDS, getVenue("sarpsborg-kirke")).score
+    // 80 av 120 plasser slår 80 av 300, som igjen slår 80 av 450.
+    expect(greaker).toBeGreaterThan(tune)
+    expect(tune).toBeGreaterThan(sarpsborg)
+  })
+
+  it("forklarer lavt belegg i begrunnelsen", () => {
+    const result = evaluateVenue(NEEDS, getVenue("sarpsborg-kirke"))
+    const capacity = result.reasons.find((r) => r.rule === "Kapasitet")
+    expect(capacity?.text).toMatch(/større enn behovet/)
+    expect(capacity?.points).toBeLessThan(0)
+  })
+
+  it("gir ikke trekk for riktig belegg", () => {
+    const result = evaluateVenue(NEEDS, getVenue("greaker-menighetshus"))
+    expect(result.reasons.find((r) => r.rule === "Kapasitet")?.points).toBe(0)
+  })
+})
+
 describe("rangering", () => {
   it("sorterer god match først og ikke egnet sist", () => {
     const ranked = rankVenues(CONCERT)

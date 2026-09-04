@@ -74,8 +74,14 @@ export function KirkeFlowProvider({ children, initialState }: ProviderProps) {
   }, [])
 
   const approve = useCallback(
-    (caseId: string) => {
-      dispatch({ type: "case/approved", caseId, staffName: currentStaffName, at: now() })
+    (caseId: string, overrideReason?: string) => {
+      dispatch({
+        type: "case/approved",
+        caseId,
+        staffName: currentStaffName,
+        at: now(),
+        ...(overrideReason ? { overrideReason } : {}),
+      })
     },
     [currentStaffName],
   )

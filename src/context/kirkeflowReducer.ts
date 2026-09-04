@@ -24,7 +24,13 @@ export interface KirkeFlowState {
 export type KirkeFlowAction =
   | { type: "case/created"; request: BookingRequest }
   | { type: "case/assigned"; caseId: string; staffId: string; staffName: string; at: string }
-  | { type: "case/approved"; caseId: string; staffName: string; at: string }
+  | {
+      type: "case/approved"
+      caseId: string
+      staffName: string
+      at: string
+      overrideReason?: string
+    }
   | { type: "case/paymentConfirmed"; caseId: string; staffName: string; at: string }
   | { type: "case/rejected"; caseId: string; reason: string; staffName: string; at: string }
   | { type: "case/infoRequested"; caseId: string; message: string; staffName: string; at: string }
@@ -99,7 +105,7 @@ export function kirkeflowReducer(
 
     case "case/approved":
       return update(state, action.caseId, (c) =>
-        approveCase(c, action.staffName, new Date(action.at)),
+        approveCase(c, action.staffName, new Date(action.at), action.overrideReason),
       )
 
     case "case/paymentConfirmed":

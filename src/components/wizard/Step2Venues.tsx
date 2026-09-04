@@ -48,11 +48,12 @@ export function Step2Venues({ needs, selectedVenueId, onSelect }: Step2Props) {
         </p>
       ) : (
         <ul className="flex flex-col gap-4">
-          {suitable.map((result) => (
+          {suitable.map((result, index) => (
             <li key={result.venueId}>
               <VenueCard
                 result={result}
                 selected={result.venueId === selectedVenueId}
+                isBest={index === 0 && result.verdict === "god_match"}
                 onSelect={onSelect}
                 onExplain={setExplaining}
               />

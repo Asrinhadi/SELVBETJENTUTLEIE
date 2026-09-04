@@ -167,15 +167,48 @@ export function assignCase(
   )
 }
 
+/**
+ * Sann når lokalet allerede er opptatt i tidsrommet. En slik sak kan ikke
+ * godkjennes på vanlig måte – det ville skapt dobbeltbooking, som er
+ * nettopp det systemet skal hindre.
+ */
+export function hasCalendarConflict(request: BookingRequest): boolean {
+  return (
+    request.availability.conflicts.length > 0 ||
+    request.availability.state === "opptatt" ||
+    request.availability.state === "forelopig_reservert"
+  )
+}
+
 export function approveCase(
   request: BookingRequest,
   staffName: string,
   at: Date,
+  /** Påkrevd begrunnelse når saken godkjennes til tross for kalenderkonflikt. */
+  overrideReason?: string,
 ): BookingRequest {
   if (request.status === "godkjent" || request.status === "bekreftet") return request
+  // Uten skriftlig begrunnelse skal en konflikt aldri kunne godkjennes.
+  if (hasCalendarConflict(request) && !overrideReason) return request
+
   const from = request.status
-  let next = withEvent(
-    { ...request, status: "godkjent" },
+  let next = request
+
+  if (overrideReason && hasCalendarConflict(request)) {
+    const conflicts = request.availability.conflicts
+      .map((c) => `${c.title} (${c.timeRange})`)
+      .join(", ")
+    next = withEvent(
+      next,
+      "konflikt_overstyrt",
+      staffName,
+      `Kalenderkonflikt overstyrt manuelt. Konflikt: ${conflicts || request.availability.label}. Begrunnelse: ${overrideReason}`,
+      at,
+    )
+  }
+
+  next = withEvent(
+    { ...next, status: "godkjent" },
     "godkjent",
     staffName,
     "Forespørselen er godkjent. Søker får tilsendt bekreftelse og fakturagrunnlag.",

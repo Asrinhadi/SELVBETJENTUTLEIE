@@ -62,6 +62,7 @@ export type CaseEventType =
   | "info_mottatt"
   | "pris_justert"
   | "alternativ_foreslatt"
+  | "konflikt_overstyrt"
   | "status_endret"
   | "melding"
 

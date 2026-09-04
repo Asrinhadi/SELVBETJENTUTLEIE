@@ -2,6 +2,7 @@ import { addDays, subDays } from "date-fns"
 import { describe, expect, it } from "vitest"
 
 import {
+  DEMO_APPLICANT,
   DESCRIPTION_MAX,
   MAX_ATTENDEES,
   MAX_BUFFER_MINUTES,
@@ -17,7 +18,7 @@ import { toIsoDate } from "@/lib/dates"
 
 const BASE = buildInitialWizardData().needs
 const VALID_NEEDS = { ...BASE, description: "En helt vanlig konsert med kor og orgel." }
-const VALID_APPLICANT = buildInitialWizardData().applicant
+const VALID_APPLICANT = DEMO_APPLICANT
 
 describe("lagring inneholder ikke varige personopplysninger", () => {
   it("bruker sessionStorage, ikke localStorage", () => {
@@ -101,8 +102,22 @@ describe("lengdegrenser på fritekst", () => {
 })
 
 describe("validering av kontaktopplysninger", () => {
-  it("godtar de forhåndsutfylte demoverdiene", () => {
+  it("starter med tomme felt – systemet fyller aldri inn stille", () => {
+    const applicant = buildInitialWizardData().applicant
+    expect(applicant.name).toBe("")
+    expect(applicant.email).toBe("")
+    expect(applicant.phone).toBe("")
+    expect(Object.keys(validateStep5(applicant)).length).toBeGreaterThan(0)
+  })
+
+  it("godtar testopplysningene som fylles inn ved et bevisst klikk", () => {
     expect(Object.keys(validateStep5(VALID_APPLICANT))).toHaveLength(0)
+  })
+
+  it("avviser tom e-post og tomt telefonnummer", () => {
+    const errors = validateStep5({ ...VALID_APPLICANT, email: "", phone: "" })
+    expect(errors.email).toBe("Skriv inn e-postadressen din.")
+    expect(errors.phone).toBeDefined()
   })
 
   it("avviser ugyldig e-post", () => {

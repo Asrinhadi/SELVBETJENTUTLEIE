@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { useKirkeFlow } from "@/context/useKirkeFlow"
+import { CASE_STATUS_LABELS } from "@/domain/case"
 import { getEventType } from "@/domain/event"
 import { FACILITY_LABELS, VENUE_TYPE_LABELS, getVenue } from "@/domain/venue"
 import { staffName } from "@/data/staff"
@@ -187,10 +188,7 @@ export function AdminCasePage() {
                     ({VENUE_TYPE_LABELS[venue.type]}, {venue.seatedCapacity} plasser)
                   </span>
                 </span>
-                <SuitabilityBadge
-                  verdict={request.suitability.verdict}
-                  score={request.suitability.score}
-                />
+                <SuitabilityBadge verdict={request.suitability.verdict} />
               </div>
 
               <ul className="flex flex-col gap-1.5">
@@ -407,7 +405,11 @@ export function AdminCasePage() {
                       <span className="text-sm text-muted-foreground">
                         {e.actor} · {formatDateTime(e.timestamp)}
                         {e.fromStatus && e.toStatus && (
-                          <> · {e.fromStatus} → {e.toStatus}</>
+                          <>
+                            {" · "}
+                            {CASE_STATUS_LABELS[e.fromStatus]} →{" "}
+                            {CASE_STATUS_LABELS[e.toStatus]}
+                          </>
                         )}
                       </span>
                     </div>

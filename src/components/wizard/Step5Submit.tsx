@@ -1,9 +1,10 @@
 import type { ReactNode } from "react"
-import { TriangleAlert, UserRound } from "lucide-react"
+import { TriangleAlert, UserRound, Wand2 } from "lucide-react"
 
 import { AvailabilityBadge } from "@/components/case/AvailabilityBadge"
 import { SuitabilityBadge } from "@/components/venue/SuitabilityBadge"
 import { FormField } from "@/components/forms/FormField"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
@@ -15,7 +16,7 @@ import type { SuitabilityResult } from "@/domain/suitabilityEngine"
 import { FACILITY_LABELS, getVenue, type VenueId } from "@/domain/venue"
 import { fieldA11y } from "@/lib/fieldA11y"
 import { capitalize, formatCurrency, formatLongDate, formatMinutes } from "@/lib/formatters"
-import type { FieldErrors } from "@/components/wizard/wizardState"
+import { DEMO_APPLICANT, type FieldErrors } from "@/components/wizard/wizardState"
 
 interface Step5Props {
   needs: EventNeeds
@@ -61,13 +62,24 @@ export function Step5Submit({
           </div>
         </CardHeader>
         <CardContent>
-          <p className="glass-panel flex items-start gap-2 border-warning-border bg-warning-soft/70 p-3.5 text-base text-warning">
-            <TriangleAlert className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
-            <span>
-              <strong>Ikke skriv inn ekte personopplysninger i demoen.</strong> Feltene er
-              forhåndsutfylt med oppdiktede opplysninger. Ingenting sendes ut av nettleseren.
-            </span>
-          </p>
+          <div className="glass-panel flex flex-col gap-3 border-warning-border bg-warning-soft/70 p-3.5">
+            <p className="flex items-start gap-2 text-base text-warning">
+              <TriangleAlert className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+              <span>
+                <strong>Ikke skriv inn ekte personopplysninger i demoen.</strong> Ingenting
+                sendes ut av nettleseren, men bruk likevel oppdiktede opplysninger.
+              </span>
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="self-start"
+              onClick={() => onChange({ ...DEMO_APPLICANT })}
+            >
+              <Wand2 aria-hidden="true" />
+              Fyll inn fiktive testopplysninger
+            </Button>
+          </div>
           <div className="grid gap-5 sm:grid-cols-2">
             <FormField id="name" label="Navn" error={errors.name}>
               <Input

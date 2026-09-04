@@ -1,7 +1,8 @@
-import { CheckCircle2, CircleDashed, CircleHelp, XCircle } from "lucide-react"
+import { CheckCircle2, CircleDashed, CircleHelp, Star, XCircle } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import {
+  BEST_MATCH_LABEL,
   VERDICT_LABELS,
   type SuitabilityVerdict,
 } from "@/domain/suitabilityEngine"
@@ -18,19 +19,26 @@ const CONFIG: Record<
 
 export function SuitabilityBadge({
   verdict,
-  score,
+  isBest = false,
 }: {
   verdict: SuitabilityVerdict
-  score?: number
+  /** Merker det høyest rangerte lokalet, slik at listen har en tydelig vinner. */
+  isBest?: boolean
 }) {
+  if (isBest) {
+    return (
+      <Badge variant="success" className="border-success/40 bg-success text-white">
+        <Star aria-hidden="true" />
+        {BEST_MATCH_LABEL}
+      </Badge>
+    )
+  }
+
   const { variant, Icon } = CONFIG[verdict]
   return (
     <Badge variant={variant}>
       <Icon aria-hidden="true" />
       {VERDICT_LABELS[verdict]}
-      {score !== undefined && (
-        <span className="font-normal opacity-75">· {score}/100</span>
-      )}
     </Badge>
   )
 }

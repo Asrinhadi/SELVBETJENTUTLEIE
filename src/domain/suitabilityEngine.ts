@@ -20,10 +20,13 @@ export type SuitabilityVerdict = "god_match" | "mulig" | "ma_vurderes" | "ikke_e
 
 export const VERDICT_LABELS: Record<SuitabilityVerdict, string> = {
   god_match: "God match",
-  mulig: "Mulig",
+  mulig: "Mulig match",
   ma_vurderes: "Må vurderes",
   ikke_egnet: "Ikke egnet",
 }
+
+/** Det høyest rangerte lokalet merkes «Beste match» i listen. */
+export const BEST_MATCH_LABEL = "Beste match"
 
 export type ReasonKind = "positiv" | "advarsel" | "mangel"
 
@@ -53,6 +56,11 @@ export const THRESHOLDS = {
   godMatch: 85,
   mulig: 60,
 } as const
+
+/** Ideelt belegg i forhold til antall sitteplasser. */
+const IDEAL_UTILISATION = { min: 0.45, tight: 0.9 } as const
+/** Hvor hardt lavt belegg trekker ned. Gir maks −27 ved tomt lokale. */
+const UNDERUSE_FACTOR = 60
 
 function facilityLabel(id: FacilityId): string {
   return FACILITY_LABELS[id]
@@ -91,27 +99,38 @@ export function evaluateVenue(needs: EventNeeds, venue: Venue): SuitabilityResul
       text: `Kapasiteten er nær øvre grense: ${attendees} av maks ${venue.maxCapacity}.`,
       points: -18,
     })
-  } else if (attendees >= venue.seatedCapacity * 0.6) {
-    reasons.push({
-      kind: "positiv",
-      rule: "Kapasitet",
-      text: `Riktig kapasitet: ${attendees} personer i et lokale med ${venue.seatedCapacity} sitteplasser.`,
-      points: 0,
-    })
-  } else if (attendees < venue.seatedCapacity * 0.2) {
-    reasons.push({
-      kind: "advarsel",
-      rule: "Kapasitet",
-      text: `Lokalet er romslig for ${attendees} personer og kan oppleves tomt.`,
-      points: -8,
-    })
   } else {
-    reasons.push({
-      kind: "positiv",
-      rule: "Kapasitet",
-      text: `God plass til ${attendees} personer.`,
-      points: 0,
-    })
+    // Belegget avgjør hvor godt lokalet passer i størrelse. Et lokale som er
+    // mye større enn behovet er ikke feil, men det er en dårligere match enn
+    // et som er riktig dimensjonert – og det må skille lokalene fra hverandre.
+    const utilisation = attendees / venue.seatedCapacity
+    if (utilisation >= IDEAL_UTILISATION.tight) {
+      reasons.push({
+        kind: "positiv",
+        rule: "Kapasitet",
+        text: `Nesten fullt belegg: ${attendees} av ${venue.seatedCapacity} sitteplasser.`,
+        points: -2,
+      })
+    } else if (utilisation >= IDEAL_UTILISATION.min) {
+      reasons.push({
+        kind: "positiv",
+        rule: "Kapasitet",
+        text: `Riktig størrelse: ${attendees} personer i et lokale med ${venue.seatedCapacity} sitteplasser.`,
+        points: 0,
+      })
+    } else {
+      const points = -Math.round((IDEAL_UTILISATION.min - utilisation) * UNDERUSE_FACTOR)
+      const share = Math.round(utilisation * 100)
+      reasons.push({
+        kind: "advarsel",
+        rule: "Kapasitet",
+        text:
+          points <= -15
+            ? `Lokalet er mye større enn behovet: ${attendees} personer fyller bare ${share} % av ${venue.seatedCapacity} sitteplasser.`
+            : `Lokalet er noe større enn behovet: ${attendees} personer fyller ${share} % av ${venue.seatedCapacity} sitteplasser.`,
+        points,
+      })
+    }
   }
 
   // --- Regel 2: etterspurte fasiliteter ---

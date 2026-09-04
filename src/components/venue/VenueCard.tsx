@@ -15,11 +15,18 @@ import { cn } from "@/lib/utils"
 interface VenueCardProps {
   result: SuitabilityResult
   selected: boolean
+  isBest?: boolean
   onSelect: (venueId: VenueId) => void
   onExplain: (result: SuitabilityResult) => void
 }
 
-export function VenueCard({ result, selected, onSelect, onExplain }: VenueCardProps) {
+export function VenueCard({
+  result,
+  selected,
+  isBest = false,
+  onSelect,
+  onExplain,
+}: VenueCardProps) {
   const venue = getVenue(result.venueId)
   const unsuitable = result.verdict === "ikke_egnet"
   const headline = result.reasons.find((r) => r.kind === "positiv")?.text
@@ -47,7 +54,7 @@ export function VenueCard({ result, selected, onSelect, onExplain }: VenueCardPr
                 {VENUE_TYPE_LABELS[venue.type]} · {venue.address}
               </span>
             </div>
-            <SuitabilityBadge verdict={result.verdict} score={result.score} />
+            <SuitabilityBadge verdict={result.verdict} isBest={isBest} />
           </div>
 
           <p className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">

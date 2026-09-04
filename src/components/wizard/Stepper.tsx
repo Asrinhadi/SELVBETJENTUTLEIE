@@ -49,15 +49,16 @@ export function Stepper({ current, furthest, onNavigate }: StepperProps) {
                 </span>
                 <span className="flex min-w-0 flex-col">
                   <span
+                    aria-hidden="true"
                     className={cn(
                       "truncate text-sm font-medium sm:text-base",
                       active ? "text-primary" : "text-muted-foreground",
                     )}
                   >
-                    <span className="sm:hidden">{step.short}</span>
-                    <span className="hidden sm:inline">{step.title}</span>
+                    {step.short}
                   </span>
                   <span className="sr-only">
+                    Steg {step.id}: {step.title} –{" "}
                     {done ? "fullført" : active ? "aktivt steg" : "ikke startet"}
                   </span>
                 </span>

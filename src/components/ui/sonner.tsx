@@ -44,6 +44,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={toasterStyle}
       toastOptions={{
+        closeButtonAriaLabel: "Lukk varsling",
         classNames: {
           toast: "text-base! font-sans!",
           title: "text-base! font-medium!",

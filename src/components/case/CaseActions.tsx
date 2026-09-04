@@ -1,10 +1,12 @@
 import { useState } from "react"
 import {
   BadgeCheck,
+  CalendarX,
   CheckCircle2,
   CreditCard,
   MessageCircleQuestion,
   Repeat2,
+  TriangleAlert,
   UserPlus,
   Wallet,
   XCircle,
@@ -25,10 +27,18 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useKirkeFlow } from "@/context/useKirkeFlow"
 import type { BookingRequest } from "@/domain/case"
+import { hasCalendarConflict } from "@/domain/caseflow"
 import { CURRENT_STAFF_ID, staffName } from "@/data/staff"
 import { formatCurrency } from "@/lib/formatters"
 
-type ActionKind = "approve" | "reject" | "info" | "price" | "alternative" | "payment"
+type ActionKind =
+  | "approve"
+  | "override"
+  | "reject"
+  | "info"
+  | "price"
+  | "alternative"
+  | "payment"
 
 const MIN_TEXT = 10
 const MAX_TEXT = 1000
@@ -44,6 +54,10 @@ export function CaseActions({ request }: { request: BookingRequest }) {
   const decided = request.status === "avslatt" || request.status === "bekreftet"
   const canDecide = !decided && request.status !== "venter_betaling"
   const isMine = request.assignedTo === CURRENT_STAFF_ID
+  const conflict = hasCalendarConflict(request)
+  const conflictList = request.availability.conflicts
+    .map((c) => `${c.title} (${c.timeRange})`)
+    .join(", ")
 
   function openDialog(kind: ActionKind) {
     setText("")
@@ -77,45 +91,121 @@ export function CaseActions({ request }: { request: BookingRequest }) {
   }
 
   return (
-    <section aria-label="Behandle saken" className="flex flex-wrap gap-2.5">
-      {!isMine && !decided && (
-        <Button variant="outline" onClick={handleAssign}>
-          <UserPlus aria-hidden="true" />
-          Tildel meg saken
-        </Button>
+    <section aria-label="Behandle saken" className="flex flex-col gap-3">
+      {canDecide && conflict && (
+        <p
+          role="alert"
+          className="glass-panel flex items-start gap-2.5 border-danger-border bg-danger-soft/70 p-3.5 text-base text-danger"
+        >
+          <CalendarX className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+          <span>
+            <strong>Kalenderkonflikt: lokalet er ikke ledig.</strong>{" "}
+            {conflictList
+              ? `Kolliderer med ${conflictList}.`
+              : request.availability.reason}{" "}
+            Vanlig godkjenning er sperret. Foreslå et annet tidspunkt, eller overstyr med
+            skriftlig begrunnelse.
+          </span>
+        </p>
       )}
 
-      {canDecide && (
-        <>
-          <Button variant="success" onClick={() => openDialog("approve")}>
-            <CheckCircle2 aria-hidden="true" />
-            Godkjenn
+      <div className="flex flex-wrap gap-2.5">
+        {!isMine && !decided && (
+          <Button variant="outline" onClick={handleAssign}>
+            <UserPlus aria-hidden="true" />
+            Tildel meg saken
           </Button>
-          <Button variant="warning" onClick={() => openDialog("info")}>
-            <MessageCircleQuestion aria-hidden="true" />
-            Be om mer informasjon
-          </Button>
-          <Button variant="outline" onClick={() => openDialog("price")}>
-            <Wallet aria-hidden="true" />
-            Juster prisoverslaget
-          </Button>
-          <Button variant="outline" onClick={() => openDialog("alternative")}>
-            <Repeat2 aria-hidden="true" />
-            Foreslå alternativ
-          </Button>
-          <Button variant="destructive" onClick={() => openDialog("reject")}>
-            <XCircle aria-hidden="true" />
-            Avslå
-          </Button>
-        </>
-      )}
+        )}
 
-      {request.status === "venter_betaling" && (
-        <Button variant="success" onClick={() => openDialog("payment")}>
-          <CreditCard aria-hidden="true" />
-          Registrer betaling
-        </Button>
-      )}
+        {canDecide && (
+          <>
+            {conflict ? (
+              <Button variant="destructive" onClick={() => openDialog("override")}>
+                <TriangleAlert aria-hidden="true" />
+                Godkjenn likevel
+              </Button>
+            ) : (
+              <Button variant="success" onClick={() => openDialog("approve")}>
+                <CheckCircle2 aria-hidden="true" />
+                Godkjenn
+              </Button>
+            )}
+            <Button variant="warning" onClick={() => openDialog("info")}>
+              <MessageCircleQuestion aria-hidden="true" />
+              Be om mer informasjon
+            </Button>
+            <Button variant="outline" onClick={() => openDialog("price")}>
+              <Wallet aria-hidden="true" />
+              Juster prisoverslaget
+            </Button>
+            <Button variant="outline" onClick={() => openDialog("alternative")}>
+              <Repeat2 aria-hidden="true" />
+              Foreslå alternativ
+            </Button>
+            <Button variant="destructive" onClick={() => openDialog("reject")}>
+              <XCircle aria-hidden="true" />
+              Avslå
+            </Button>
+          </>
+        )}
+
+        {request.status === "venter_betaling" && (
+          <Button variant="success" onClick={() => openDialog("payment")}>
+            <CreditCard aria-hidden="true" />
+            Registrer betaling
+          </Button>
+        )}
+      </div>
+
+      {/* Godkjenn til tross for konflikt – krever begrunnelse, og logges */}
+      <Dialog open={open === "override"} onOpenChange={(o) => !o && close()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Godkjenne {request.caseNumber} med kalenderkonflikt?</DialogTitle>
+            <DialogDescription>
+              Lokalet er registrert som opptatt i tidsrommet. Godkjenner du nå, kan det
+              oppstå dobbeltbooking.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="glass-panel border-danger-border bg-danger-soft/60 p-3 text-sm text-danger">
+            <p className="font-semibold">Konflikt i kalenderen:</p>
+            <p>{conflictList || request.availability.reason}</p>
+          </div>
+          <MessageField
+            label="Begrunnelse for overstyring"
+            value={text}
+            error={error}
+            placeholder="For eksempel: den andre oppføringen er avlyst og fjernes fra kalenderen i dag."
+            onChange={(v) => {
+              setText(v)
+              if (error) setError(null)
+            }}
+          />
+          <p className="text-sm text-muted-foreground">
+            Begrunnelsen føres i revisjonsloggen sammen med hvem som overstyrte.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={close}>
+              Avbryt
+            </Button>
+            <Button
+              variant="action"
+              onClick={() => {
+                const reason = readText()
+                if (!reason) return
+                approve(request.id, reason)
+                close()
+                toast.warning(`${request.caseNumber} er godkjent med overstyrt konflikt`, {
+                  description: "Overstyringen er ført i revisjonsloggen.",
+                })
+              }}
+            >
+              <TriangleAlert aria-hidden="true" />
+              Overstyr og godkjenn
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Godkjenn */}
       <Dialog open={open === "approve"} onOpenChange={(o) => !o && close()}>

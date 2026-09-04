@@ -10,7 +10,6 @@ import {
   UserX,
 } from "lucide-react"
 
-import { ComplexityBadge } from "@/components/case/ComplexityBadge"
 import { StatusBadge } from "@/components/case/StatusBadge"
 import { PageHeading } from "@/components/layout/PageHeading"
 import { Input } from "@/components/ui/input"
@@ -29,7 +28,7 @@ import { COMPLEXITY_LABELS, type ComplexityLevel } from "@/domain/complexity"
 import { getEventType } from "@/domain/event"
 import { VENUES, getVenue } from "@/domain/venue"
 import { STAFF, staffName } from "@/data/staff"
-import { formatDateTime, formatShortDate } from "@/lib/formatters"
+import { formatShortDate, pluralPunkt } from "@/lib/formatters"
 import { usePageTitle } from "@/lib/usePageTitle"
 import { cn } from "@/lib/utils"
 
@@ -302,23 +301,21 @@ export function AdminInboxPage() {
           </p>
         ) : (
           <div className="glass-card overflow-x-auto p-0">
-            <table className="w-full min-w-[68rem] border-collapse text-left">
+            <table className="w-full min-w-[52rem] border-collapse text-left">
               <caption className="sr-only">
-                Forespørsler med status, kompleksitet og ansvarlig saksbehandler
+                Forespørsler med status, merknader og ansvarlig saksbehandler. Kompleksitet
+                og tidspunkt for siste oppdatering vises i saksdetaljene.
               </caption>
               <thead>
                 <tr className="border-b border-primary/15 text-sm text-muted-foreground">
                   {[
                     "Saksnummer",
                     "Arrangement",
-                    "Søker",
                     "Lokale",
                     "Dato",
                     "Status",
-                    "Kompleksitet",
-                    "Merknader",
+                    "Merknad",
                     "Ansvarlig",
-                    "Sist oppdatert",
                   ].map((h) => (
                     <th key={h} scope="col" className="px-3 py-2.5 font-semibold whitespace-nowrap">
                       {h}
@@ -343,16 +340,8 @@ export function AdminInboxPage() {
                     <td className="px-3 py-3">
                       <span className="font-medium">{getEventType(c.needs.eventType).label}</span>
                       <span className="block text-sm text-muted-foreground">
-                        {c.needs.expectedAttendees} personer
+                        {c.applicant.name} · {c.needs.expectedAttendees} personer
                       </span>
-                    </td>
-                    <td className="px-3 py-3">
-                      <span>{c.applicant.name}</span>
-                      {c.applicant.organization && (
-                        <span className="block text-sm text-muted-foreground">
-                          {c.applicant.organization}
-                        </span>
-                      )}
                     </td>
                     <td className="px-3 py-3 text-sm">{getVenue(c.venueId).name}</td>
                     <td className="px-3 py-3 text-sm whitespace-nowrap tabular-nums">
@@ -365,9 +354,6 @@ export function AdminInboxPage() {
                       <StatusBadge status={c.status} />
                     </td>
                     <td className="px-3 py-3">
-                      <ComplexityBadge level={c.complexity.level} />
-                    </td>
-                    <td className="px-3 py-3">
                       <div className="flex flex-col gap-1">
                         {c.availability.conflicts.length > 0 && (
                           <span className="inline-flex items-center gap-1.5 text-sm text-danger">
@@ -378,7 +364,7 @@ export function AdminInboxPage() {
                         {c.missingInfo.length > 0 && (
                           <span className="inline-flex items-center gap-1.5 text-sm text-warning">
                             <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
-                            Mangler {c.missingInfo.length} punkter
+                            Mangler {pluralPunkt(c.missingInfo.length)}
                           </span>
                         )}
                         {c.availability.conflicts.length === 0 && c.missingInfo.length === 0 && (
@@ -392,9 +378,6 @@ export function AdminInboxPage() {
                       ) : (
                         <span className="text-muted-foreground">Ikke tildelt</span>
                       )}
-                    </td>
-                    <td className="px-3 py-3 text-sm whitespace-nowrap text-muted-foreground">
-                      {formatDateTime(c.updatedAt)}
                     </td>
                   </tr>
                 ))}

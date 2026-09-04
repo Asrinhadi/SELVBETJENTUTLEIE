@@ -27,7 +27,10 @@ describe("offentlig veiviser", () => {
       /Finn lokale, få pris, følg saken/,
     )
     const nav = screen.getByRole("navigation", { name: "Fremdrift" })
-    expect(within(nav).getByText("Beskriv arrangementet")).toBeInTheDocument()
+    // Korte navn vises, mens hele tittelen leses opp av skjermlesere.
+    expect(within(nav).getByText("Behov")).toBeInTheDocument()
+    expect(within(nav).getByText("Lokale")).toBeInTheDocument()
+    expect(within(nav).getByText(/Steg 1: Beskriv arrangementet/)).toBeInTheDocument()
     expect(screen.getByText("Steg 1 av 5")).toBeInTheDocument()
   })
 
@@ -66,8 +69,9 @@ describe("offentlig veiviser", () => {
     expect(screen.getByText(/Dette er et foreløpig prisoverslag/)).toBeInTheDocument()
     await u.click(screen.getByRole("button", { name: /Neste/ }))
 
-    // Steg 5: send inn
+    // Steg 5: kontaktopplysninger må fylles inn bevisst før innsending
     expect(await screen.findByText("Kontroller forespørselen")).toBeInTheDocument()
+    await u.click(screen.getByRole("button", { name: /Fyll inn fiktive testopplysninger/ }))
     await u.click(screen.getByRole("button", { name: /Send forespørsel/ }))
 
     // Kvittering med saksnummer og statustidslinje

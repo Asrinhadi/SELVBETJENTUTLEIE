@@ -12,6 +12,10 @@ export interface StepDefinition {
   short: string
 }
 
+/**
+ * Korte navn i selve stepperen, slik at de aldri avkortes. Den fulle
+ * tittelen leses opp av skjermlesere og vises som overskrift i steget.
+ */
 export const WIZARD_STEPS: readonly StepDefinition[] = [
   { id: 1, title: "Beskriv arrangementet", short: "Behov" },
   { id: 2, title: "Anbefalte lokaler", short: "Lokale" },
@@ -46,13 +50,19 @@ export function buildInitialWizardData(today: Date = new Date()): WizardData {
       publicEvent: true,
     },
     venueId: null,
-    applicant: {
-      name: "Kari Nordmann",
-      organization: "Borg vokalensemble",
-      email: "kari.nordmann@example.com",
-      phone: "900 00 100",
-    },
+    // Kontaktfeltene står tomme med vilje. Systemet skal aldri fylle inn
+    // opplysninger om en person uten at brukeren ser at det skjer – knappen
+    // «Fyll inn fiktive testopplysninger» gjør det synlig og bevisst.
+    applicant: { name: "", organization: "", email: "", phone: "" },
   }
+}
+
+/** Åpenbart fiktive testopplysninger, satt inn ved et bevisst klikk. */
+export const DEMO_APPLICANT: Applicant = {
+  name: "Kari Nordmann",
+  organization: "Borg vokalensemble",
+  email: "kari.nordmann@example.com",
+  phone: "900 00 100",
 }
 
 /**
