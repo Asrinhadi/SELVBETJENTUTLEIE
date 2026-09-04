@@ -18,6 +18,26 @@ import { fieldA11y } from "@/lib/fieldA11y"
 import { capitalize, formatCurrency, formatLongDate, formatMinutes } from "@/lib/formatters"
 import { DEMO_APPLICANT, type FieldErrors } from "@/components/wizard/wizardState"
 
+/**
+ * Autofyll er slått av på kontaktfeltene.
+ *
+ * Nettleserens autofyll og passordbehandlere griper inn i felt med
+ * `autocomplete="email"` og `"tel"`: de kan tømme eller overskrive feltet
+ * uten å utløse en React-hendelse. Da viser skjemaet noe annet enn det
+ * appen faktisk lagrer – nøyaktig den typen avvik som ikke kan forekomme i
+ * et saksbehandlingssystem. Demoen ber dessuten uttrykkelig om at man IKKE
+ * skriver inn ekte personopplysninger, så autofyll er uønsket uansett.
+ */
+const NO_AUTOFILL = {
+  autoComplete: "off",
+  autoCorrect: "off",
+  autoCapitalize: "off",
+  spellCheck: false,
+  "data-1p-ignore": true,
+  "data-lpignore": "true",
+  "data-form-type": "other",
+} as const
+
 interface Step5Props {
   needs: EventNeeds
   venueId: VenueId
@@ -83,7 +103,8 @@ export function Step5Submit({
           <div className="grid gap-5 sm:grid-cols-2">
             <FormField id="name" label="Navn" error={errors.name}>
               <Input
-                autoComplete="name"
+                {...NO_AUTOFILL}
+                name="kf-navn"
                 maxLength={100}
                 value={applicant.name}
                 onChange={(e) => onChange({ ...applicant, name: e.target.value })}
@@ -97,7 +118,8 @@ export function Step5Submit({
               error={errors.organization}
             >
               <Input
-                autoComplete="organization"
+                {...NO_AUTOFILL}
+                name="kf-virksomhet"
                 maxLength={120}
                 value={applicant.organization ?? ""}
                 onChange={(e) => onChange({ ...applicant, organization: e.target.value })}
@@ -109,8 +131,9 @@ export function Step5Submit({
             </FormField>
             <FormField id="email" label="E-post" error={errors.email}>
               <Input
+                {...NO_AUTOFILL}
                 type="email"
-                autoComplete="email"
+                name="kf-epost"
                 maxLength={254}
                 value={applicant.email}
                 onChange={(e) => onChange({ ...applicant, email: e.target.value })}
@@ -119,8 +142,9 @@ export function Step5Submit({
             </FormField>
             <FormField id="phone" label="Telefon" error={errors.phone}>
               <Input
+                {...NO_AUTOFILL}
                 type="tel"
-                autoComplete="tel"
+                name="kf-telefon"
                 maxLength={20}
                 value={applicant.phone}
                 onChange={(e) => onChange({ ...applicant, phone: e.target.value })}
