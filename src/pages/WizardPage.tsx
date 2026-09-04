@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ArrowLeft, ArrowRight, Send } from "lucide-react"
 import { toast } from "sonner"
@@ -13,8 +13,11 @@ import { Step5Submit } from "@/components/wizard/Step5Submit"
 import {
   WIZARD_STEPS,
   buildInitialWizardData,
+  clearDraft,
   focusFirstError,
   hasErrors,
+  loadDraft,
+  saveDraft,
   validateStep1,
   validateStep5,
   type FieldErrors,
@@ -33,23 +36,31 @@ const LAST_STEP = WIZARD_STEPS.length
 export function WizardPage() {
   usePageTitle("Ny forespørsel")
   const navigate = useNavigate()
-  const { state, submitCase } = useKirkeFlow()
+  const { calendar, submitCase } = useKirkeFlow()
 
-  const [step, setStep] = useState(1)
-  const [furthest, setFurthest] = useState(1)
-  const [data, setData] = useState<WizardData>(() => buildInitialWizardData())
+  // Utkastet gjenopprettes ved refresh, slik at ingenting går tapt.
+  const restored = useMemo(() => loadDraft(), [])
+  const [step, setStep] = useState(restored?.step ?? 1)
+  const [furthest, setFurthest] = useState(restored?.step ?? 1)
+  const [data, setData] = useState<WizardData>(
+    () => restored?.data ?? buildInitialWizardData(),
+  )
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
 
   const { needs, venueId, applicant } = data
+
+  useEffect(() => {
+    saveDraft(data, step)
+  }, [data, step])
 
   const suitability = useMemo(
     () => (venueId ? evaluateVenue(needs, getVenue(venueId)) : null),
     [needs, venueId],
   )
   const slot = useMemo(
-    () => (venueId ? assessAvailability(needs, venueId, state.calendar) : null),
-    [needs, venueId, state.calendar],
+    () => (venueId ? assessAvailability(needs, venueId, calendar) : null),
+    [needs, venueId, calendar],
   )
   const estimate = useMemo(
     () => (venueId ? calculatePrice(needs, venueId) : null),
@@ -144,6 +155,7 @@ export function WizardPage() {
         ...(organization.length > 0 ? { organization } : {}),
       },
     })
+    clearDraft()
     toast.success(`Forespørsel ${request.caseNumber} er registrert`, {
       description: "Saken ligger nå i den interne innboksen.",
     })

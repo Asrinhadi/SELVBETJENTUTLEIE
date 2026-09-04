@@ -1,9 +1,28 @@
-import { Outlet } from "react-router-dom"
+import { useEffect, useRef } from "react"
+import { Outlet, useLocation } from "react-router-dom"
 
 import { SiteHeader } from "@/components/layout/SiteHeader"
 import { SiteFooter } from "@/components/layout/SiteFooter"
 
 export function AppShell() {
+  const { pathname } = useLocation()
+  const mainRef = useRef<HTMLElement>(null)
+  const firstRender = useRef(true)
+
+  /**
+   * Uten dette beholder en ny side scrollposisjonen fra den forrige, og du
+   * lander midt i innholdet. Fokus flyttes samtidig til hovedinnholdet, slik
+   * at tastaturbrukere starter på riktig sted etter et ruteskifte.
+   */
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false
+      return
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" })
+    mainRef.current?.focus({ preventScroll: true })
+  }, [pathname])
+
   return (
     <div className="flex min-h-svh flex-col">
       <a
@@ -13,7 +32,7 @@ export function AppShell() {
         Hopp til hovedinnhold
       </a>
       <SiteHeader />
-      <main id="hovedinnhold" className="flex-1" tabIndex={-1}>
+      <main id="hovedinnhold" ref={mainRef} className="flex-1" tabIndex={-1}>
         <Outlet />
       </main>
       <SiteFooter />

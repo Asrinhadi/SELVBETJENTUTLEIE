@@ -7,8 +7,12 @@ import { assessComplexity, findMissingInfo } from "@/domain/complexity"
 import {
   approveCase,
   buildCaseNumber,
+  buildEffectiveCalendar,
+  casesToBookings,
   createCase,
   hasCalendarConflict,
+  refreshCase,
+  rejectCase,
 } from "@/domain/caseflow"
 import { assessAvailability } from "@/domain/availabilityEngine"
 import { evaluateVenue } from "@/domain/suitabilityEngine"
@@ -116,6 +120,149 @@ describe("godkjenning", () => {
     // Saken står nå på venter_betaling, og godkjenning skal ikke kjøre på nytt.
     const before = request.events.length
     expect(approveCase(request, "Anne Lie", NOW).events.length).toBe(before + 2)
+  })
+})
+
+describe("dobbeltbooking mot systemets egne saker", () => {
+  const SLOT: EventNeeds = {
+    ...NEEDS,
+    date: toIsoDate(addDays(NOW, 12)),
+    startTime: "18:00",
+    endTime: "20:00",
+    setupMinutes: 60,
+    cleanupMinutes: 30,
+    requiredFacilities: [],
+  }
+
+  it("gir ledig når ingen har spurt om lokalet ennå", () => {
+    const first = createCase(
+      { needs: SLOT, venueId: "greaker-menighetshus", applicant: APPLICANT, calendar: CALENDAR },
+      300,
+      NOW,
+    )
+    expect(first.availability.state).toBe("ledig")
+  })
+
+  it("oppdager en identisk forespørsel som allerede ligger i systemet", () => {
+    const first = createCase(
+      { needs: SLOT, venueId: "greaker-menighetshus", applicant: APPLICANT, calendar: CALENDAR },
+      300,
+      NOW,
+    )
+    const second = createCase(
+      {
+        needs: SLOT,
+        venueId: "greaker-menighetshus",
+        applicant: APPLICANT,
+        calendar: buildEffectiveCalendar(CALENDAR, [first]),
+      },
+      301,
+      NOW,
+    )
+    expect(second.availability.state).not.toBe("ledig")
+    expect(second.availability.conflicts.length).toBeGreaterThan(0)
+    expect(second.availability.conflicts[0]?.title).toContain(first.caseNumber)
+  })
+
+  it("blokkerer også når bare klargjøringstiden overlapper", () => {
+    const first = createCase(
+      { needs: SLOT, venueId: "greaker-menighetshus", applicant: APPLICANT, calendar: CALENDAR },
+      300,
+      NOW,
+    )
+    // Første sak blokkerer 17:00–20:30. Denne slutter 17:30.
+    const overlapping: EventNeeds = {
+      ...SLOT,
+      startTime: "15:00",
+      endTime: "17:30",
+      setupMinutes: 0,
+      cleanupMinutes: 0,
+    }
+    const second = createCase(
+      {
+        needs: overlapping,
+        venueId: "greaker-menighetshus",
+        applicant: APPLICANT,
+        calendar: buildEffectiveCalendar(CALENDAR, [first]),
+      },
+      301,
+      NOW,
+    )
+    expect(second.availability.conflicts.length).toBeGreaterThan(0)
+  })
+
+  it("ser bort fra avslåtte saker", () => {
+    const first = rejectCase(
+      createCase(
+        { needs: SLOT, venueId: "greaker-menighetshus", applicant: APPLICANT, calendar: CALENDAR },
+        300,
+        NOW,
+      ),
+      "Ikke aktuelt.",
+      "Anne Lie",
+      NOW,
+    )
+    expect(buildEffectiveCalendar(CALENDAR, [first])).toHaveLength(CALENDAR.length)
+  })
+
+  it("regner en godkjent sak som bekreftet og en uavgjort som foreløpig", () => {
+    const pending = createCase(
+      { needs: SLOT, venueId: "greaker-menighetshus", applicant: APPLICANT, calendar: CALENDAR },
+      300,
+      NOW,
+    )
+    expect(casesToBookings([pending])[0]?.kind).toBe("forelopig")
+    expect(casesToBookings([approveCase(pending, "Anne Lie", NOW)])[0]?.kind).toBe("bekreftet")
+  })
+
+  it("sperrer godkjenning av sak nummer to selv om lagret tilstand sa ledig", () => {
+    let state = createInitialState(NOW)
+    const at = NOW.toISOString()
+
+    const first = createCase(
+      {
+        needs: SLOT,
+        venueId: "greaker-menighetshus",
+        applicant: APPLICANT,
+        calendar: buildEffectiveCalendar(state.calendar, state.cases),
+      },
+      state.nextSequence,
+      NOW,
+    )
+    state = kirkeflowReducer(state, { type: "case/created", request: first })
+
+    const second = createCase(
+      {
+        needs: SLOT,
+        venueId: "greaker-menighetshus",
+        applicant: APPLICANT,
+        calendar: buildEffectiveCalendar(state.calendar, state.cases),
+      },
+      state.nextSequence,
+      NOW,
+    )
+    state = kirkeflowReducer(state, { type: "case/created", request: second })
+
+    // Den FØRSTE saken ble lagret med «ledig», men er nå i konflikt med den andre.
+    const approved = kirkeflowReducer(state, {
+      type: "case/approved",
+      caseId: first.id,
+      staffName: "Anne Lie",
+      at,
+    }).cases.find((c) => c.id === first.id)
+
+    expect(approved?.status).not.toBe("godkjent")
+    expect(approved?.status).not.toBe("venter_betaling")
+  })
+
+  it("teller ikke saken som konflikt med seg selv", () => {
+    const first = createCase(
+      { needs: SLOT, venueId: "greaker-menighetshus", applicant: APPLICANT, calendar: CALENDAR },
+      300,
+      NOW,
+    )
+    const refreshed = refreshCase(first, CALENDAR, [first])
+    expect(refreshed.availability.state).toBe("ledig")
   })
 })
 

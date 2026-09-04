@@ -24,6 +24,7 @@ import { FACILITY_LABELS, type FacilityId } from "@/domain/venue"
 import { fieldA11y } from "@/lib/fieldA11y"
 import {
   DESCRIPTION_MAX,
+  OTHER_NEEDS_MAX,
   applyEventType,
   type FieldErrors,
 } from "@/components/wizard/wizardState"
@@ -81,7 +82,7 @@ function SectionCard({
           <div className="flex min-w-0 flex-col">
             <span
               aria-hidden="true"
-              className="font-mono text-xs font-semibold tracking-[0.2em] text-primary/55"
+              className="font-mono text-xs font-semibold tracking-[0.2em] text-muted-foreground"
             >
               {step}
             </span>
@@ -146,7 +147,7 @@ export function Step1Needs({ needs, errors, onChange }: Step1Props) {
         >
           <Textarea
             rows={4}
-            maxLength={DESCRIPTION_MAX + 50}
+            maxLength={DESCRIPTION_MAX}
             value={needs.description}
             onChange={(e) => onChange({ ...needs, description: e.target.value })}
             {...fieldA11y("description", {
@@ -184,14 +185,20 @@ export function Step1Needs({ needs, errors, onChange }: Step1Props) {
               Gjelder dette arrangementet?
             </legend>
             {definition.followUps.map((key) => (
-              <label key={key} className="flex cursor-pointer items-start gap-3 text-base">
+              <div key={key} className="flex items-start gap-3">
                 <Checkbox
+                  id={`followup-${key}`}
                   checked={needs[key] === true}
                   onCheckedChange={(checked) => onChange({ ...needs, [key]: checked === true })}
                   className="mt-0.5"
                 />
-                {FOLLOW_UP_LABELS[key]}
-              </label>
+                <label
+                  htmlFor={`followup-${key}`}
+                  className="cursor-pointer text-base leading-snug"
+                >
+                  {FOLLOW_UP_LABELS[key]}
+                </label>
+              </div>
             ))}
           </fieldset>
         )}
@@ -297,16 +304,19 @@ export function Step1Needs({ needs, errors, onChange }: Step1Props) {
           <legend className="sr-only">Behov i lokalet</legend>
           <div className="grid gap-2.5 sm:grid-cols-2">
             {SELECTABLE_FACILITIES.map((facility) => (
-              <label
+              <div
                 key={facility}
-                className="glass-panel flex cursor-pointer items-center gap-3 p-3 text-base"
+                className="glass-panel flex items-center gap-3 p-3"
               >
                 <Checkbox
+                  id={`behov-${facility}`}
                   checked={facilitySet.has(facility)}
                   onCheckedChange={(checked) => toggleFacility(facility, checked === true)}
                 />
-                {FACILITY_LABELS[facility]}
-              </label>
+                <label htmlFor={`behov-${facility}`} className="cursor-pointer text-base">
+                  {FACILITY_LABELS[facility]}
+                </label>
+              </div>
             ))}
           </div>
         </fieldset>
@@ -320,7 +330,7 @@ export function Step1Needs({ needs, errors, onChange }: Step1Props) {
         >
           <Textarea
             rows={3}
-            maxLength={800}
+            maxLength={OTHER_NEEDS_MAX}
             value={needs.otherNeeds}
             onChange={(e) => onChange({ ...needs, otherNeeds: e.target.value })}
             {...fieldA11y("otherNeeds", {

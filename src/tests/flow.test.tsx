@@ -112,10 +112,11 @@ describe("offentlig veiviser", () => {
 
     const end = screen.getByLabelText(/^Sluttid/)
     await u.clear(end)
+    // Sluttid før starttid tolkes som neste døgn, altså 23 timer – for langt.
     await u.type(end, "17:00")
     await u.click(screen.getByRole("button", { name: /Neste/ }))
 
-    expect(await screen.findByText("Sluttid må være etter starttid.")).toBeInTheDocument()
+    expect(await screen.findByText(/maks 12 timer/)).toBeInTheDocument()
     expect(screen.getByText("Steg 3 av 5")).toBeInTheDocument()
     expect(end).toHaveFocus()
   })

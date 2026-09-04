@@ -2,7 +2,14 @@ import { addDays, subDays } from "date-fns"
 
 import type { CalendarBooking } from "@/domain/availabilityEngine"
 import type { BookingRequest } from "@/domain/case"
-import { approveCase, assignCase, createCase, rejectCase, requestMoreInfo } from "@/domain/caseflow"
+import {
+  approveCase,
+  assignCase,
+  buildEffectiveCalendar,
+  createCase,
+  rejectCase,
+  requestMoreInfo,
+} from "@/domain/caseflow"
 import type { EventNeeds } from "@/domain/event"
 import type { VenueId } from "@/domain/venue"
 import { toIsoDate } from "@/lib/dates"
@@ -195,11 +202,18 @@ export function buildDemoCases(
 ): BookingRequest[] {
   const staffOne = STAFF[0]
   const staffTwo = STAFF[1]
+  const created: BookingRequest[] = []
 
-  return seeds(today).map((seed, index) => {
+  for (const [index, seed] of seeds(today).entries()) {
     const createdAt = subDays(today, Math.abs(seed.createdOffsetDays))
+    // Hver sak vurderes mot demokalenderen OG mot sakene som allerede finnes.
     let request = createCase(
-      { needs: seed.needs, venueId: seed.venueId, applicant: seed.applicant, calendar },
+      {
+        needs: seed.needs,
+        venueId: seed.venueId,
+        applicant: seed.applicant,
+        calendar: buildEffectiveCalendar(calendar, created),
+      },
       DEMO_START_SEQUENCE + index,
       createdAt,
     )
@@ -241,6 +255,8 @@ export function buildDemoCases(
         break
     }
 
-    return request
-  })
+    created.push(request)
+  }
+
+  return created
 }

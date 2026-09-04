@@ -55,6 +55,10 @@ export function CaseActions({ request }: { request: BookingRequest }) {
   const canDecide = !decided && request.status !== "venter_betaling"
   const isMine = request.assignedTo === CURRENT_STAFF_ID
   const conflict = hasCalendarConflict(request)
+  /** Grunnlaget en justering måles mot: overslaget uten tidligere justering. */
+  const currentTotal = request.price.lines
+    .filter((l) => l.id !== "justering")
+    .reduce((sum, l) => sum + l.amount, 0)
   const conflictList = request.availability.conflicts
     .map((c) => `${c.title} (${c.timeRange})`)
     .join(", ")
@@ -333,8 +337,16 @@ export function CaseActions({ request }: { request: BookingRequest }) {
                   setError("Oppgi et beløp forskjellig fra 0.")
                   return
                 }
-                if (Math.abs(parsed) > 1_000_000) {
-                  setError("Beløpet er urimelig høyt.")
+                if (parsed > 1_000_000) {
+                  setError("Tillegget er urimelig stort.")
+                  return
+                }
+                // Et avslag større enn regningen ville gitt linjer som ikke
+                // summerer seg til totalen.
+                if (parsed < 0 && Math.abs(parsed) > currentTotal) {
+                  setError(
+                    `Avslaget kan ikke være større enn overslaget på ${formatCurrency(currentTotal)}.`,
+                  )
                   return
                 }
                 const reason = readText()

@@ -12,6 +12,10 @@ export default defineConfig({
       '@': path.resolve(import.meta.dirname, './src'),
     },
   },
+  // Preview-serveren sender ellers «Access-Control-Allow-Origin: *», som lar
+  // hvilken som helst nettside lese dokumentet med fetch. Ufarlig for en
+  // offentlig demo, men det motsier resten av headersettet.
+  preview: { cors: false },
   build: {
     rolldownOptions: {
       output: {

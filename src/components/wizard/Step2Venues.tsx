@@ -10,7 +10,7 @@ import type { EventNeeds } from "@/domain/event"
 import { calculatePrice } from "@/domain/pricingEngine"
 import { rankVenues, type SuitabilityResult } from "@/domain/suitabilityEngine"
 import type { VenueId } from "@/domain/venue"
-import { capitalize, formatLongDate } from "@/lib/formatters"
+import { capitalize, formatLongDate, plural } from "@/lib/formatters"
 
 interface Step2Props {
   needs: EventNeeds
@@ -19,7 +19,7 @@ interface Step2Props {
 }
 
 export function Step2Venues({ needs, selectedVenueId, onSelect }: Step2Props) {
-  const { state } = useKirkeFlow()
+  const { calendar } = useKirkeFlow()
   const [explaining, setExplaining] = useState<SuitabilityResult | null>(null)
 
   /**
@@ -29,10 +29,10 @@ export function Step2Venues({ needs, selectedVenueId, onSelect }: Step2Props) {
   const results = useMemo(() => {
     return rankVenues(needs).map((result) => ({
       result,
-      availability: assessAvailability(needs, result.venueId, state.calendar),
+      availability: assessAvailability(needs, result.venueId, calendar),
       price: calculatePrice(needs, result.venueId),
     }))
-  }, [needs, state.calendar])
+  }, [needs, calendar])
 
   const suitable = results.filter((r) => r.result.verdict !== "ikke_egnet")
   const unsuitable = results.filter((r) => r.result.verdict === "ikke_egnet")
@@ -84,7 +84,7 @@ export function Step2Venues({ needs, selectedVenueId, onSelect }: Step2Props) {
       {unsuitable.length > 0 && (
         <details className="glass-card p-4 sm:p-5">
           <summary className="cursor-pointer text-base font-medium text-muted-foreground">
-            Vis {unsuitable.length} lokaler som ikke passer
+            Vis {plural(unsuitable.length, "lokale", "lokaler")} som ikke passer
           </summary>
           <ul className="flex flex-col gap-4 pt-4">
             {unsuitable.map(({ result, availability, price }) => (

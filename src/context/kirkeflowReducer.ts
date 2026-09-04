@@ -5,9 +5,11 @@ import {
   adjustPrice,
   approveCase,
   assignCase,
+  buildEffectiveCalendar,
   confirmPayment,
   createCase,
   proposeAlternative,
+  refreshCase,
   rejectCase,
   requestMoreInfo,
   type CreateCaseInput,
@@ -67,7 +69,12 @@ export function buildCase(
   input: Omit<CreateCaseInput, "calendar">,
   now: Date,
 ): BookingRequest {
-  return createCase({ ...input, calendar: state.calendar }, state.nextSequence, now)
+  // Nye saker vurderes mot demokalenderen og mot alle eksisterende saker.
+  return createCase(
+    { ...input, calendar: buildEffectiveCalendar(state.calendar, state.cases) },
+    state.nextSequence,
+    now,
+  )
 }
 
 function update(
@@ -77,10 +84,16 @@ function update(
 ): KirkeFlowState {
   const index = state.cases.findIndex((c) => c.id === caseId)
   if (index === -1) return state
-  const current = state.cases[index]
-  if (!current) return state
+  const stored = state.cases[index]
+  if (!stored) return state
+
+  // Tilgjengeligheten avhenger av de andre sakene og regnes derfor ut på nytt
+  // FØR handlingen kjøres. Ellers kunne godkjenningssperren ved kalenderkonflikt
+  // omgås fordi lagret tilstand fortsatt sa «ledig».
+  const current = refreshCase(stored, state.calendar, state.cases)
   const next = fn(current)
-  if (next === current) return state
+  if (next === current && current === stored) return state
+
   const cases = state.cases.slice()
   cases[index] = next
   return { ...state, cases }

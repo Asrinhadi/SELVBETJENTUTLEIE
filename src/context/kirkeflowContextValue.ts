@@ -1,5 +1,6 @@
 import { createContext } from "react"
 
+import type { CalendarBooking } from "@/domain/availabilityEngine"
 import type { BookingRequest } from "@/domain/case"
 import type { CreateCaseInput } from "@/domain/caseflow"
 import type { KirkeFlowState } from "@/context/kirkeflowReducer"
@@ -14,6 +15,10 @@ export interface InboxStats {
 
 export interface KirkeFlowContextValue {
   state: KirkeFlowState
+  /** Sakene med tilgjengelighet og kompleksitet regnet ut mot hverandre. */
+  cases: readonly BookingRequest[]
+  /** Demokalenderen pluss sakene i systemet. */
+  calendar: readonly CalendarBooking[]
   stats: InboxStats
   getCase: (caseId: string) => BookingRequest | undefined
   getCaseByNumber: (caseNumber: string) => BookingRequest | undefined

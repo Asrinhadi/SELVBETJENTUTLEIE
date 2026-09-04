@@ -35,6 +35,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       closeButton
       position="top-right"
       className="toaster group"
+      containerAriaLabel="Varslinger"
       icons={{
         success: <CircleCheckIcon className="size-5" />,
         info: <InfoIcon className="size-5" />,

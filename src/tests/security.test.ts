@@ -60,9 +60,52 @@ describe("validering av dato", () => {
 })
 
 describe("validering av tid og antall", () => {
-  it("krever at sluttid er etter starttid", () => {
-    const errors = validateStep1({ ...VALID_NEEDS, startTime: "20:00", endTime: "18:00" })
-    expect(errors.endTime).toBe("Sluttid må være etter starttid.")
+  it("avviser sluttid lik starttid", () => {
+    const errors = validateStep1({ ...VALID_NEEDS, startTime: "20:00", endTime: "20:00" })
+    expect(errors.endTime).toBe("Sluttid kan ikke være lik starttid.")
+  })
+
+  it("avviser arrangementer lengre enn tolv timer", () => {
+    expect(
+      validateStep1({ ...VALID_NEEDS, startTime: "00:00", endTime: "23:59" }).endTime,
+    ).toMatch(/maks 12 timer/)
+    // 20:00–18:00 tolkes som neste dag, altså 22 timer.
+    expect(
+      validateStep1({ ...VALID_NEEDS, startTime: "20:00", endTime: "18:00" }).endTime,
+    ).toMatch(/maks 12 timer/)
+  })
+
+  it("godtar arrangement over midnatt innenfor grensen", () => {
+    expect(
+      validateStep1({ ...VALID_NEEDS, startTime: "22:00", endTime: "01:00" }).endTime,
+    ).toBeUndefined()
+  })
+
+  it("avviser tidspunkt som allerede er passert i dag", () => {
+    const now = new Date("2026-09-08T13:25:00")
+    const errors = validateStep1(
+      { ...VALID_NEEDS, date: "2026-09-08", startTime: "06:00", endTime: "07:00" },
+      now,
+    )
+    expect(errors.startTime).toBeDefined()
+  })
+
+  it("godtar tidspunkt senere samme dag", () => {
+    const now = new Date("2026-09-08T08:00:00")
+    const errors = validateStep1(
+      { ...VALID_NEEDS, date: "2026-09-08", startTime: "18:00", endTime: "20:00" },
+      now,
+    )
+    expect(errors.startTime).toBeUndefined()
+  })
+
+  it("avviser desimaltall og negative deltakerantall", () => {
+    expect(validateStep1({ ...VALID_NEEDS, expectedAttendees: 1.5 }).expectedAttendees).toMatch(
+      /helt tall/,
+    )
+    expect(validateStep1({ ...VALID_NEEDS, expectedAttendees: -5 }).expectedAttendees).toMatch(
+      /negativt/,
+    )
   })
 
   it("avviser deltakerantall utenfor grensene", () => {
@@ -131,6 +174,11 @@ describe("validering av kontaktopplysninger", () => {
     expect(validateStep5({ ...VALID_APPLICANT, phone: "1234567" }).phone).toBeDefined()
     expect(validateStep5({ ...VALID_APPLICANT, phone: "1".repeat(21) }).phone).toBeDefined()
     expect(validateStep5({ ...VALID_APPLICANT, phone: "<script>" }).phone).toBeDefined()
+  })
+
+  it("krever åtte siffer, ikke bare åtte tegn", () => {
+    expect(validateStep5({ ...VALID_APPLICANT, phone: "++++++++" }).phone).toMatch(/siffer/)
+    expect(validateStep5({ ...VALID_APPLICANT, phone: "(+47) 900 00 100" }).phone).toBeUndefined()
   })
 
   it("setter tak på navn og organisasjon", () => {

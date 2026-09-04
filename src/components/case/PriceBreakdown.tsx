@@ -28,7 +28,7 @@ export function PriceBreakdown({
             )}
           >
             <div className="flex min-w-0 flex-col">
-              <span className="text-xs font-semibold tracking-wide text-primary/60 uppercase">
+              <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                 {PRICE_LINE_GROUP_LABELS[line.kind]}
               </span>
               <span className="text-base font-medium">{line.label}</span>

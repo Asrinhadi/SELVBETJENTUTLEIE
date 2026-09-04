@@ -1,0 +1,3 @@
+# KirkeFlow er en prototype med fiktive data og skal ikke indekseres.
+User-agent: *
+Disallow: /

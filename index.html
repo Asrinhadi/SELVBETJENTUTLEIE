@@ -5,14 +5,47 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
+    <meta name="robots" content="noindex, nofollow" />
     <meta
       name="description"
       content="KirkeFlow er en interaktiv prototype for utleieforespørsler og intern saksbehandling i et kirkelig fellesråd. Fiktive data og fiktive regler."
     />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="KirkeFlow – finn lokale, få pris, følg saken" />
+    <meta
+      property="og:description"
+      content="Prototype for utleieforespørsler og intern saksbehandling i et kirkelig fellesråd. Fiktive data."
+    />
+    <meta name="twitter:card" content="summary" />
     <title>KirkeFlow – finn lokale, få pris, følg saken</title>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <div
+        style="
+          margin: 2rem auto;
+          max-width: 34rem;
+          padding: 1.5rem;
+          border: 1px solid #cfdad5;
+          border-radius: 1rem;
+          background: #ffffff;
+          font-family: system-ui, sans-serif;
+          color: #16302f;
+          line-height: 1.5;
+        "
+      >
+        <h1 style="margin-top: 0; font-size: 1.25rem">KirkeFlow krever JavaScript</h1>
+        <p>
+          Denne prototypen kjører i nettleseren og trenger JavaScript for å vise skjemaet og
+          saksgangen. Slå på JavaScript, eller prøv en annen nettleser.
+        </p>
+        <p style="margin-bottom: 0">
+          Skal du leie et lokale i praksis, ta kontakt med Sarpsborg kirkelige fellesråd
+          direkte. Merk at dette er en uavhengig prototype med fiktive data.
+        </p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

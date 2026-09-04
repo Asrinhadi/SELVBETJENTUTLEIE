@@ -53,6 +53,11 @@ export function pluralPunkt(count: number): string {
   return count === 1 ? "1 punkt" : `${count} punkter`
 }
 
+/** «1 lokale» / «3 lokaler» og tilsvarende for andre ord. */
+export function plural(count: number, singular: string, pluralForm: string): string {
+  return `${count} ${count === 1 ? singular : pluralForm}`
+}
+
 export function capitalize(text: string): string {
   if (text.length === 0) return text
   return text.charAt(0).toUpperCase() + text.slice(1)

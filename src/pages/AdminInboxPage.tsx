@@ -72,7 +72,7 @@ function StatCard({
 
 export function AdminInboxPage() {
   usePageTitle("Saksbehandlerdemo")
-  const { state, stats } = useKirkeFlow()
+  const { cases, stats } = useKirkeFlow()
 
   const [query, setQuery] = useState("")
   const [status, setStatus] = useState<string>(ANY)
@@ -85,7 +85,7 @@ export function AdminInboxPage() {
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return state.cases.filter((c) => {
+    return cases.filter((c) => {
       if (status !== ANY && c.status !== status) return false
       if (venue !== ANY && c.venueId !== venue) return false
       if (assignee !== ANY) {
@@ -109,7 +109,7 @@ export function AdminInboxPage() {
       }
       return true
     })
-  }, [state.cases, query, status, venue, assignee, complexity, fromDate, onlyConflicts, onlyMissing])
+  }, [cases, query, status, venue, assignee, complexity, fromDate, onlyConflicts, onlyMissing])
 
   function resetFilters() {
     setQuery("")
@@ -264,17 +264,26 @@ export function AdminInboxPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
-          <label className="flex cursor-pointer items-center gap-2.5 text-base">
+          <div className="flex items-center gap-2.5">
             <Checkbox
+              id="f-conflicts"
               checked={onlyConflicts}
               onCheckedChange={(c) => setOnlyConflicts(c === true)}
             />
-            Bare saker med kalenderkonflikt
-          </label>
-          <label className="flex cursor-pointer items-center gap-2.5 text-base">
-            <Checkbox checked={onlyMissing} onCheckedChange={(c) => setOnlyMissing(c === true)} />
-            Bare saker som mangler informasjon
-          </label>
+            <label htmlFor="f-conflicts" className="cursor-pointer text-base">
+              Bare saker med kalenderkonflikt
+            </label>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <Checkbox
+              id="f-missing"
+              checked={onlyMissing}
+              onCheckedChange={(c) => setOnlyMissing(c === true)}
+            />
+            <label htmlFor="f-missing" className="cursor-pointer text-base">
+              Bare saker som mangler informasjon
+            </label>
+          </div>
           {filtersActive && (
             <button
               type="button"
@@ -290,8 +299,11 @@ export function AdminInboxPage() {
       <section aria-labelledby="saksliste" className="flex flex-col gap-3">
         <h2 id="saksliste" className="text-xl font-semibold">
           Forespørsler
-          <span className="ml-2 text-base font-normal tracking-normal text-muted-foreground">
-            ({visible.length} av {state.cases.length})
+          <span
+            aria-live="polite"
+            className="ml-2 text-base font-normal tracking-normal text-muted-foreground"
+          >
+            ({visible.length} av {cases.length})
           </span>
         </h2>
 
@@ -300,7 +312,12 @@ export function AdminInboxPage() {
             Ingen saker samsvarer med filtrene. Nullstill filtrene for å se alle.
           </p>
         ) : (
-          <div className="glass-card overflow-x-auto p-0">
+          <div
+            className="glass-card overflow-x-auto p-0"
+            tabIndex={0}
+            role="region"
+            aria-label="Tabell over forespørsler. Bruk piltastene for å bla sidelengs."
+          >
             <table className="w-full min-w-[52rem] border-collapse text-left">
               <caption className="sr-only">
                 Forespørsler med status, merknader og ansvarlig saksbehandler. Kompleksitet

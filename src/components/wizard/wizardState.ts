@@ -1,10 +1,16 @@
 import { addDays } from "date-fns"
+import { z } from "zod"
 
 import type { Applicant } from "@/domain/case"
-import { getEventType, type EventNeeds, type FollowUpId } from "@/domain/event"
-import type { VenueId } from "@/domain/venue"
-import { toIsoDate, todayIsoDate } from "@/lib/dates"
-import { isValidTimeRange } from "@/lib/time"
+import {
+  EVENT_TYPE_IDS,
+  getEventType,
+  type EventNeeds,
+  type FollowUpId,
+} from "@/domain/event"
+import { FACILITY_IDS, VENUE_IDS, type VenueId } from "@/domain/venue"
+import { toIsoDate } from "@/lib/dates"
+import { MAX_EVENT_MINUTES, durationMinutes, toDateTime } from "@/lib/time"
 
 export interface StepDefinition {
   id: number
@@ -101,10 +107,12 @@ export const MAX_ATTENDEES = 2000
 export const MAX_BUFFER_MINUTES = 600
 /** Hvor langt fram i tid en forespørsel kan gjelde. */
 const MAX_YEARS_AHEAD = 5
+/** Korteste varsel en saksbehandler realistisk rekker å behandle. */
+export const MIN_LEAD_MINUTES = 120
 
-export function validateStep1(needs: EventNeeds): FieldErrors {
+export function validateStep1(needs: EventNeeds, now: Date = new Date()): FieldErrors {
   const errors: FieldErrors = {}
-  const today = todayIsoDate()
+  const today = toIsoDate(now)
 
   if (needs.description.trim().length < DESCRIPTION_MIN) {
     errors.description = `Beskriv arrangementet med minst ${DESCRIPTION_MIN} tegn.`
@@ -113,7 +121,12 @@ export function validateStep1(needs: EventNeeds): FieldErrors {
   }
 
   if (!Number.isFinite(needs.expectedAttendees) || needs.expectedAttendees < 1) {
-    errors.expectedAttendees = "Oppgi forventet antall personer."
+    errors.expectedAttendees =
+      needs.expectedAttendees < 0
+        ? "Antall personer kan ikke være et negativt tall."
+        : "Oppgi forventet antall personer."
+  } else if (!Number.isInteger(needs.expectedAttendees)) {
+    errors.expectedAttendees = "Oppgi antall personer som et helt tall."
   } else if (needs.expectedAttendees > MAX_ATTENDEES) {
     errors.expectedAttendees = `Oppgi et tall under ${MAX_ATTENDEES}. Ta kontakt direkte for større arrangementer.`
   }
@@ -130,12 +143,25 @@ export function validateStep1(needs: EventNeeds): FieldErrors {
 
   if (!needs.startTime) errors.startTime = "Velg starttid."
   if (!needs.endTime) errors.endTime = "Velg sluttid."
-  if (
-    needs.startTime &&
-    needs.endTime &&
-    !isValidTimeRange(needs.startTime, needs.endTime)
-  ) {
-    errors.endTime = "Sluttid må være etter starttid."
+
+  const minutes =
+    needs.startTime && needs.endTime ? durationMinutes(needs.startTime, needs.endTime) : null
+
+  if (needs.startTime && needs.endTime && minutes === null) {
+    errors.endTime = "Sluttid kan ikke være lik starttid."
+  } else if (minutes !== null && minutes > MAX_EVENT_MINUTES) {
+    errors.endTime = `Arrangementet kan vare maks ${MAX_EVENT_MINUTES / 60} timer. Del det opp, eller ta kontakt direkte.`
+  }
+
+  // Datoen alene er ikke nok: et tidspunkt tidligere i dag er også fortid.
+  if (!errors.date && !errors.startTime && needs.date === today) {
+    const start = toDateTime(needs.date, needs.startTime)
+    if (start && start.getTime() < now.getTime() + MIN_LEAD_MINUTES * 60_000) {
+      errors.startTime =
+        MIN_LEAD_MINUTES > 0
+          ? `Forespørselen må sendes minst ${MIN_LEAD_MINUTES / 60} timer før arrangementet starter.`
+          : "Starttidspunktet er allerede passert."
+    }
   }
 
   if (needs.eventType === "annet" && needs.otherNeeds.trim().length === 0) {
@@ -170,10 +196,14 @@ export function validateStep5(applicant: Applicant): FieldErrors {
   }
 
   const phone = applicant.phone.trim()
-  if (phone.length < 8) errors.phone = "Telefonnummeret må ha minst åtte tegn."
+  const digits = phone.replace(/\D/g, "")
+  if (phone.length === 0) errors.phone = "Skriv inn telefonnummeret ditt."
   else if (phone.length > 20) errors.phone = "Telefonnummeret kan være maks 20 tegn."
   else if (!/^[+\d\s()-]+$/.test(phone)) {
     errors.phone = "Telefonnummeret kan bare inneholde tall, mellomrom, + og bindestrek."
+  } else if (digits.length < 8) {
+    // «++++++++» er åtte tegn, men null siffer.
+    errors.phone = "Telefonnummeret må ha minst åtte siffer."
   }
 
   if ((applicant.organization ?? "").trim().length > 120) {
@@ -186,6 +216,81 @@ export function validateStep5(applicant: Applicant): FieldErrors {
 export function hasErrors(errors: FieldErrors): boolean {
   return Object.values(errors).some((v) => v !== undefined)
 }
+
+const DRAFT_KEY = "kirkeflow-utkast-v1"
+
+/**
+ * Utkastet lagres i sessionStorage, slik at en refresh midt i veiviseren
+ * ikke sletter alt brukeren har skrevet. Samme lagring som sakene: forsvinner
+ * når fanen lukkes, og sendes aldri ut av nettleseren.
+ */
+export function saveDraft(data: WizardData, step: number): void {
+  try {
+    window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ data, step }))
+  } catch {
+    // Lagring er en bekvemmelighet – feil skal ikke stoppe veiviseren.
+  }
+}
+
+export function loadDraft(): { data: WizardData; step: number } | null {
+  try {
+    const raw = window.sessionStorage.getItem(DRAFT_KEY)
+    if (!raw) return null
+    const parsed = draftSchema.safeParse(JSON.parse(raw))
+    if (!parsed.success) return null
+    const fallback = buildInitialWizardData()
+    return {
+      step: parsed.data.step,
+      data: {
+        needs: { ...fallback.needs, ...parsed.data.data.needs },
+        venueId: parsed.data.data.venueId ?? null,
+        applicant: { ...fallback.applicant, ...parsed.data.data.applicant },
+      },
+    }
+  } catch {
+    return null
+  }
+}
+
+export function clearDraft(): void {
+  try {
+    window.sessionStorage.removeItem(DRAFT_KEY)
+  } catch {
+    // Ignorer – se saveDraft.
+  }
+}
+
+/** Utkastet er brukerredigerbart, så det valideres på nytt ved innlasting. */
+const draftSchema = z.object({
+  step: z.number().int().min(1).max(5),
+  data: z.object({
+    needs: z.object({
+      eventType: z.enum(EVENT_TYPE_IDS),
+      description: z.string().max(DESCRIPTION_MAX + 100),
+      expectedAttendees: z.number().finite(),
+      date: z.string().max(20),
+      startTime: z.string().max(10),
+      endTime: z.string().max(10),
+      setupMinutes: z.number().int().min(0).max(MAX_BUFFER_MINUTES),
+      cleanupMinutes: z.number().int().min(0).max(MAX_BUFFER_MINUTES),
+      requiredFacilities: z.array(z.enum(FACILITY_IDS)).max(FACILITY_IDS.length),
+      otherNeeds: z.string().max(OTHER_NEEDS_MAX + 100),
+      amplifiedMusic: z.boolean().optional(),
+      ticketed: z.boolean().optional(),
+      servingFood: z.boolean().optional(),
+      servingAlcohol: z.boolean().optional(),
+      needsStage: z.boolean().optional(),
+      publicEvent: z.boolean().optional(),
+    }),
+    venueId: z.enum(VENUE_IDS).nullable(),
+    applicant: z.object({
+      name: z.string().max(200),
+      organization: z.string().max(200).optional(),
+      email: z.string().max(300),
+      phone: z.string().max(50),
+    }),
+  }),
+})
 
 /** Feltene i visuell rekkefølge, slik at vi alltid hopper til den øverste feilen. */
 const FIELD_ORDER: readonly string[] = [

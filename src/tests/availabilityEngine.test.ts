@@ -39,15 +39,63 @@ describe("blokkert tidsrom", () => {
     expect(window?.to).toBe("20:30")
   })
 
-  it("returnerer null for ugyldig tidsrom", () => {
+  it("returnerer null når start og slutt er like", () => {
     expect(
       calculateBlockedWindow({
         startTime: "20:00",
-        endTime: "18:00",
+        endTime: "20:00",
         setupMinutes: 0,
         cleanupMinutes: 0,
       }),
     ).toBeNull()
+  })
+
+  it("tolker sluttid før starttid som neste døgn", () => {
+    const window = calculateBlockedWindow({
+      startTime: "22:00",
+      endTime: "01:00",
+      setupMinutes: 30,
+      cleanupMinutes: 30,
+    })
+    expect(window?.from).toBe("21:30")
+    expect(window?.to).toBe("01:30")
+    expect(window?.crossesMidnight).toBe(true)
+  })
+})
+
+describe("arrangement over midnatt", () => {
+  it("kan registreres, men krever manuell vurdering", () => {
+    const needs = { ...NEEDS, startTime: "23:00", endTime: "00:30", setupMinutes: 0 }
+    const slot = assessAvailability(needs, "greaker-menighetshus", EMPTY)
+    expect(slot.state).toBe("krever_vurdering")
+    expect(slot.reason).toMatch(/over midnatt/)
+    expect(slot.crossesMidnight).toBe(true)
+  })
+
+  it("oppdager konflikt med en booking dagen etter", () => {
+    const calendar: CalendarBooking[] = [
+      {
+        id: "natt",
+        venueId: "greaker-menighetshus",
+        date: "2026-09-09",
+        start: "00:00",
+        end: "02:00",
+        title: "Nattarrangement",
+        kind: "bekreftet",
+      },
+    ]
+    const needs = { ...NEEDS, startTime: "22:00", endTime: "01:00", setupMinutes: 0, cleanupMinutes: 0 }
+    const slot = assessAvailability(needs, "greaker-menighetshus", calendar)
+    expect(slot.state).toBe("opptatt")
+    expect(slot.conflicts).toHaveLength(1)
+  })
+
+  it("avviser urimelig lange tidsrom i stedet for å regne på dem", () => {
+    const needs = { ...NEEDS, startTime: "00:00", endTime: "23:59", setupMinutes: 0 }
+    const slot = assessAvailability(needs, "greaker-menighetshus", EMPTY)
+    expect(slot.state).toBe("krever_vurdering")
+    expect(slot.reason).toMatch(/12 timer/)
+    expect(slot.blockedFrom).toBe("–")
   })
 })
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, type ReactNode } from "react"
 
-import type { CreateCaseInput } from "@/domain/caseflow"
+import { buildEffectiveCalendar, refreshCase, type CreateCaseInput } from "@/domain/caseflow"
 import { CURRENT_STAFF_ID, staffName } from "@/data/staff"
 import {
   buildCase,
@@ -43,15 +43,30 @@ export function KirkeFlowProvider({ children, initialState }: ProviderProps) {
   const now = () => new Date().toISOString()
   const currentStaffName = staffName(CURRENT_STAFF_ID)
 
+  /**
+   * Tilgjengelighet og kompleksitet avhenger av de andre sakene, så de
+   * regnes ut på nytt hver gang sakslisten endrer seg. Da slår en ny
+   * forespørsel umiddelbart ut som konflikt på saken den kolliderer med.
+   */
+  const cases = useMemo(
+    () => state.cases.map((c) => refreshCase(c, state.calendar, state.cases)),
+    [state.cases, state.calendar],
+  )
+
+  const calendar = useMemo(
+    () => buildEffectiveCalendar(state.calendar, state.cases),
+    [state.calendar, state.cases],
+  )
+
   const getCase = useCallback(
-    (caseId: string) => state.cases.find((c) => c.id === caseId),
-    [state.cases],
+    (caseId: string) => cases.find((c) => c.id === caseId),
+    [cases],
   )
 
   const getCaseByNumber = useCallback(
     (caseNumber: string) =>
-      state.cases.find((c) => c.caseNumber.toLowerCase() === caseNumber.toLowerCase()),
-    [state.cases],
+      cases.find((c) => c.caseNumber.toLowerCase() === caseNumber.toLowerCase()),
+    [cases],
   )
 
   const submitCase = useCallback(
@@ -156,21 +171,22 @@ export function KirkeFlowProvider({ children, initialState }: ProviderProps) {
 
   const stats = useMemo<InboxStats>(
     () => ({
-      total: state.cases.length,
-      awaitingReview: state.cases.filter(
+      total: cases.length,
+      awaitingReview: cases.filter(
         (c) => c.status === "venter_vurdering" || c.status === "automatisk_kontroll",
       ).length,
-      awaitingApplicant: state.cases.filter((c) => c.status === "tilleggsinfo_etterspurt")
-        .length,
-      withConflict: state.cases.filter((c) => c.availability.conflicts.length > 0).length,
-      unassigned: state.cases.filter((c) => c.assignedTo === null).length,
+      awaitingApplicant: cases.filter((c) => c.status === "tilleggsinfo_etterspurt").length,
+      withConflict: cases.filter((c) => c.availability.conflicts.length > 0).length,
+      unassigned: cases.filter((c) => c.assignedTo === null).length,
     }),
-    [state.cases],
+    [cases],
   )
 
   const value = useMemo<KirkeFlowContextValue>(
     () => ({
       state,
+      cases,
+      calendar,
       stats,
       getCase,
       getCaseByNumber,
@@ -187,6 +203,8 @@ export function KirkeFlowProvider({ children, initialState }: ProviderProps) {
     }),
     [
       state,
+      cases,
+      calendar,
       stats,
       getCase,
       getCaseByNumber,
