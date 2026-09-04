@@ -186,3 +186,41 @@ export function validateStep5(applicant: Applicant): FieldErrors {
 export function hasErrors(errors: FieldErrors): boolean {
   return Object.values(errors).some((v) => v !== undefined)
 }
+
+/** Feltene i visuell rekkefølge, slik at vi alltid hopper til den øverste feilen. */
+const FIELD_ORDER: readonly string[] = [
+  "eventType",
+  "description",
+  "expectedAttendees",
+  "date",
+  "startTime",
+  "endTime",
+  "setupMinutes",
+  "cleanupMinutes",
+  "otherNeeds",
+  "name",
+  "organization",
+  "email",
+  "phone",
+]
+
+/**
+ * Flytter fokus til det første feltet med feil og ruller det til syne.
+ * Uten dette havner feilmeldingen ofte utenfor skjermen, siden knappen
+ * ligger nederst og skjemaet er langt.
+ *
+ * `idMap` brukes der samme felt har en annen DOM-id i et annet steg.
+ */
+export function focusFirstError(
+  errors: FieldErrors,
+  idMap: Record<string, string> = {},
+): void {
+  const firstKey = FIELD_ORDER.find((key) => errors[key] !== undefined)
+  if (!firstKey) return
+
+  const element = document.getElementById(idMap[firstKey] ?? firstKey)
+  if (!(element instanceof HTMLElement)) return
+
+  element.scrollIntoView({ block: "center", behavior: "smooth" })
+  element.focus({ preventScroll: true })
+}

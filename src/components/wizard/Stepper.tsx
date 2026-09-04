@@ -20,7 +20,15 @@ export function Stepper({ current, furthest, onNavigate }: StepperProps) {
           const isLast = index === WIZARD_STEPS.length - 1
 
           return (
-            <li key={step.id} className="flex min-w-0 flex-1 items-center gap-1 sm:gap-2">
+            <li
+              key={step.id}
+              className={cn(
+                "flex min-w-0 items-center gap-1 sm:flex-1 sm:gap-2",
+                // På smale skjermer får bare det aktive steget plass til tekst;
+                // de andre krymper til bare tallet i stedet for å bli avkortet.
+                active ? "flex-1" : "flex-none",
+              )}
+            >
               <button
                 type="button"
                 onClick={() => reachable && onNavigate(step.id)}
@@ -52,7 +60,7 @@ export function Stepper({ current, furthest, onNavigate }: StepperProps) {
                     aria-hidden="true"
                     className={cn(
                       "truncate text-sm font-medium sm:text-base",
-                      active ? "text-primary" : "text-muted-foreground",
+                      active ? "text-primary" : "hidden text-muted-foreground sm:inline",
                     )}
                   >
                     {step.short}

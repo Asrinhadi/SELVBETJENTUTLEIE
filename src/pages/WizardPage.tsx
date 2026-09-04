@@ -13,6 +13,7 @@ import { Step5Submit } from "@/components/wizard/Step5Submit"
 import {
   WIZARD_STEPS,
   buildInitialWizardData,
+  focusFirstError,
   hasErrors,
   validateStep1,
   validateStep5,
@@ -62,16 +63,23 @@ export function WizardPage() {
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
+  function reportErrors(found: FieldErrors, idMap: Record<string, string> = {}) {
+    setErrors(found)
+    toast.error("Noen felt må rettes", {
+      description: "Vi har flyttet deg til det første feltet som mangler noe.",
+    })
+    // Fokus settes etter at feilmeldingene er malt, ellers finnes ikke feltet ennå.
+    window.setTimeout(() => focusFirstError(found, idMap), 0)
+  }
+
   function handleNext() {
     if (step === 1) {
       const found = validateStep1(needs)
-      setErrors(found)
       if (hasErrors(found)) {
-        toast.error("Noen felt mangler", {
-          description: "Rett opp de markerte feltene før du går videre.",
-        })
+        reportErrors(found)
         return
       }
+      setErrors({})
       goTo(2)
       return
     }
@@ -94,8 +102,15 @@ export function WizardPage() {
         ...(found.startTime ? { startTime: found.startTime } : {}),
         ...(found.endTime ? { endTime: found.endTime } : {}),
       }
-      setErrors(relevant)
-      if (hasErrors(relevant)) return
+      if (hasErrors(relevant)) {
+        reportErrors(relevant, {
+          date: "slotDate",
+          startTime: "slotStart",
+          endTime: "slotEnd",
+        })
+        return
+      }
+      setErrors({})
       goTo(4)
       return
     }
@@ -111,13 +126,11 @@ export function WizardPage() {
   function handleSubmit() {
     if (!venueId) return
     const found = validateStep5(applicant)
-    setErrors(found)
     if (hasErrors(found)) {
-      toast.error("Kontaktopplysningene mangler noe", {
-        description: "Rett opp de markerte feltene før du sender inn.",
-      })
+      reportErrors(found)
       return
     }
+    setErrors({})
 
     setSubmitting(true)
     const organization = (applicant.organization ?? "").trim()
@@ -175,6 +188,7 @@ export function WizardPage() {
           slot={slot}
           errors={errors}
           onChange={(next) => setData({ ...data, needs: next })}
+          onChangeVenue={() => goTo(2)}
         />
       )}
 

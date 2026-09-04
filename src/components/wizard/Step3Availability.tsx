@@ -1,6 +1,9 @@
+import { Repeat2 } from "lucide-react"
+
 import { AvailabilityPanel } from "@/components/case/AvailabilityPanel"
 import { FormField } from "@/components/forms/FormField"
 import { VenueImage } from "@/components/venue/VenueImage"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import type { AvailabilitySlot } from "@/domain/availabilityEngine"
@@ -16,10 +19,19 @@ interface Step3Props {
   slot: AvailabilitySlot
   errors: Partial<Record<string, string>>
   onChange: (needs: EventNeeds) => void
+  onChangeVenue: () => void
 }
 
-export function Step3Availability({ needs, venueId, slot, errors, onChange }: Step3Props) {
+export function Step3Availability({
+  needs,
+  venueId,
+  slot,
+  errors,
+  onChange,
+  onChangeVenue,
+}: Step3Props) {
   const venue = getVenue(venueId)
+  const blocked = slot.state === "opptatt" || slot.state === "forelopig_reservert"
 
   return (
     <div className="flex flex-col gap-5">
@@ -28,16 +40,22 @@ export function Step3Availability({ needs, venueId, slot, errors, onChange }: St
           <CardTitle>Tilgjengelighet for {venue.name}</CardTitle>
         </CardHeader>
         <CardContent className="gap-4">
-          <div className="flex items-center gap-4">
-            <VenueImage type={venue.type} className="hidden h-20 w-28 shrink-0 sm:block" />
-            <div className="flex min-w-0 flex-col">
-              <span className="text-base font-medium">
-                {VENUE_TYPE_LABELS[venue.type]} · {venue.address}
-              </span>
-              <span className="text-sm text-muted-foreground">
-                {capitalize(formatLongDate(needs.date))}
-              </span>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-4">
+              <VenueImage type={venue.type} className="hidden h-20 w-28 shrink-0 sm:block" />
+              <div className="flex min-w-0 flex-col">
+                <span className="text-base font-medium">
+                  {VENUE_TYPE_LABELS[venue.type]} · {venue.address}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {capitalize(formatLongDate(needs.date))}
+                </span>
+              </div>
             </div>
+            <Button variant="outline" size="sm" onClick={onChangeVenue}>
+              <Repeat2 aria-hidden="true" />
+              Velg et annet lokale
+            </Button>
           </div>
 
           <AvailabilityPanel
@@ -45,6 +63,19 @@ export function Step3Availability({ needs, venueId, slot, errors, onChange }: St
             setupMinutes={needs.setupMinutes}
             cleanupMinutes={needs.cleanupMinutes}
           />
+
+          {blocked && (
+            <div className="glass-panel flex flex-col gap-2.5 border-danger-border bg-danger-soft/60 p-3.5">
+              <p className="text-base text-danger">
+                Du kan fortsatt sende inn forespørselen, men saksbehandler må da vurdere den
+                manuelt. Det går ofte raskere å endre tidspunktet eller velge et annet lokale.
+              </p>
+              <Button variant="outline" size="sm" className="self-start" onClick={onChangeVenue}>
+                <Repeat2 aria-hidden="true" />
+                Se andre lokaler for denne datoen
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 

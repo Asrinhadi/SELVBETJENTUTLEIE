@@ -82,6 +82,70 @@ describe("offentlig veiviser", () => {
     expect(screen.getByLabelText("Status for saken")).toBeInTheDocument()
   })
 
+  it("viser ledighet og pris allerede i lokalvalget", async () => {
+    const u = user()
+    renderAt("/")
+    await u.type(
+      await screen.findByLabelText(/Kort beskrivelse/),
+      "Adventskonsert med kor og strykere, åpen for alle.",
+    )
+    await u.click(screen.getByRole("button", { name: /Neste/ }))
+
+    const first = (await screen.findAllByRole("article"))[0] as HTMLElement
+    expect(within(first).getByText("På ønsket dato")).toBeInTheDocument()
+    expect(within(first).getByText("Foreløpig pris")).toBeInTheDocument()
+    expect(within(first).getByText(/kr$/)).toBeInTheDocument()
+  })
+
+  it("gir feilmelding og flytter fokus når sluttid er før starttid i steg 3", async () => {
+    const u = user()
+    renderAt("/")
+    await u.type(
+      await screen.findByLabelText(/Kort beskrivelse/),
+      "Adventskonsert med kor og strykere, åpen for alle.",
+    )
+    await u.click(screen.getByRole("button", { name: /Neste/ }))
+
+    const cards = await screen.findAllByRole("article")
+    await u.click(within(cards[0] as HTMLElement).getByRole("button", { name: /Velg lokalet/ }))
+    await screen.findByText("Slik blokkeres lokalet")
+
+    const end = screen.getByLabelText(/^Sluttid/)
+    await u.clear(end)
+    await u.type(end, "17:00")
+    await u.click(screen.getByRole("button", { name: /Neste/ }))
+
+    expect(await screen.findByText("Sluttid må være etter starttid.")).toBeInTheDocument()
+    expect(screen.getByText("Steg 3 av 5")).toBeInTheDocument()
+    expect(end).toHaveFocus()
+  })
+
+  it("lar brukeren gå tilbake til lokalvalget fra steg 3", async () => {
+    const u = user()
+    renderAt("/")
+    await u.type(
+      await screen.findByLabelText(/Kort beskrivelse/),
+      "Adventskonsert med kor og strykere, åpen for alle.",
+    )
+    await u.click(screen.getByRole("button", { name: /Neste/ }))
+
+    const cards = await screen.findAllByRole("article")
+    await u.click(within(cards[0] as HTMLElement).getByRole("button", { name: /Velg lokalet/ }))
+    await screen.findByText("Slik blokkeres lokalet")
+
+    await u.click(screen.getByRole("button", { name: /Velg et annet lokale/ }))
+    expect(await screen.findByRole("heading", { name: "Anbefalte lokaler" })).toBeInTheDocument()
+  })
+
+  it("flytter fokus til første felt med feil i steg 1", async () => {
+    const u = user()
+    renderAt("/")
+    await u.click(await screen.findByRole("button", { name: /Neste/ }))
+
+    expect(await screen.findByText(/minst 15 tegn/)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Kort beskrivelse/)).toHaveFocus()
+  })
+
   it("forklarer hvorfor et lokale anbefales", async () => {
     const u = user()
     renderAt("/")

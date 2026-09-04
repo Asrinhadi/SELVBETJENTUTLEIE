@@ -1,9 +1,12 @@
 import { ArrowRight, CircleAlert, Info, TriangleAlert, Users } from "lucide-react"
 
+import { AvailabilityBadge } from "@/components/case/AvailabilityBadge"
 import { SuitabilityBadge } from "@/components/venue/SuitabilityBadge"
 import { VenueImage } from "@/components/venue/VenueImage"
 import { Button } from "@/components/ui/button"
+import type { AvailabilityState } from "@/domain/availabilityEngine"
 import type { SuitabilityResult } from "@/domain/suitabilityEngine"
+import { formatCurrency } from "@/lib/formatters"
 import {
   FACILITY_LABELS,
   VENUE_TYPE_LABELS,
@@ -16,6 +19,10 @@ interface VenueCardProps {
   result: SuitabilityResult
   selected: boolean
   isBest?: boolean
+  /** Ledighet på datoen brukeren allerede har oppgitt. */
+  availabilityState?: AvailabilityState
+  /** Foreløpig totalsum for dette lokalet. */
+  priceTotal?: number
   onSelect: (venueId: VenueId) => void
   onExplain: (result: SuitabilityResult) => void
 }
@@ -24,6 +31,8 @@ export function VenueCard({
   result,
   selected,
   isBest = false,
+  availabilityState,
+  priceTotal,
   onSelect,
   onExplain,
 }: VenueCardProps) {
@@ -74,6 +83,25 @@ export function VenueCard({
           </ul>
         </div>
       </div>
+
+      {(availabilityState || priceTotal !== undefined) && (
+        <div className="glass-panel flex flex-wrap items-center justify-between gap-3 p-3">
+          {availabilityState && (
+            <div className="flex flex-col gap-0.5">
+              <span className="text-sm text-muted-foreground">På ønsket dato</span>
+              <AvailabilityBadge state={availabilityState} />
+            </div>
+          )}
+          {priceTotal !== undefined && (
+            <div className="flex flex-col gap-0.5 sm:text-right">
+              <span className="text-sm text-muted-foreground">Foreløpig pris</span>
+              <span className="text-lg font-semibold tracking-[-0.02em] text-primary">
+                {formatCurrency(priceTotal)}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="flex flex-col gap-1.5">
         {headline && (
